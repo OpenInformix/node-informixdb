@@ -1,4 +1,4 @@
-/*require the ibm_db module*/
+/*require the informixdb module*/
 var common = require("./common")
   , ifxnjs = require("../")
   , assert = require("assert")

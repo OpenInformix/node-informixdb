@@ -1,8 +1,8 @@
 /*
-  Copyright (c) 2017, Sathyanesh Krishnan <msatyan@gmail.com>
-  Copyright (c) 2017, Javier Sagrera
+  Copyright (c) 2017, OpenInformix (HCL Technologies)
+  Copyright (c) 2014, IBM Corporation
   Copyright (c) 2013, Dan VerWeire <dverweire@gmail.com>
-  Copyright (c) 2010, Lee Smith<notwink@gmail.com>
+  Copyright (c) 2010, Lee Smith <notwink@gmail.com>
 
   Permission to use, copy, modify, and/or distribute this software for any
   purpose with or without fee is hereby granted, provided that the above

@@ -1,184 +1,81 @@
-
-## [Informix native node.js driver](https://openinformix.github.io/IfxNode/)
----------------------------------
+# Informix native node.js driver - node-informixdb:
 Informix native node.js driver is a high performance driver with asynchronous/synchronous interface suitable for highly scalable enterprise applications and lightweight enough for Internet of things (IoT) solutions working with Informix database.
 
-The development activities of the driver are powered by passion, dedication and independent thinking. You may send pull request, together we grow as an open community; relevant discussion and queries are answered by community through **Stack Overflow**. [http://stackoverflow.com/questions/tagged/informix](http://stackoverflow.com/questions/tagged/informix)
+**Supported Platforms** - Windows64, MacOS64, Linuxx64, Linuxia32, AIX.
 
+## API Documentation
 
-## Installing the driver
-------------------------
-```bash
-# Local Install: just for the project.
-npm install ifxnjs
+> For complete list of informixdb APIs and example, please check [APIDocumentation.md](https://github.com/OpenInformix/node-informixdb/blob/master/APIDocumentation.md)
 
-# Global Install: on the system for the user
-npm install -g ifxnjs
+## Prerequisite
+
+- For higher versions of node (When building with Node 4 onwards) the compiler must support C++11. Note the default compiler on RHEL 6 does not have the required support. Install a newer compiler or upgrade the older one.
+
+- Python 2.7 is required by node-gyp.
+
+- Informix CSDK (Client Software Development Kit) for connectivity.
+
+- Recommended version of node.js is >= V4.X.
+
+- If Windows Platform : for compilation of informixdb Visual Studio is required, if not available then module will install with "pre-compiled" binary version. 
+
+## Install
+
+You may install the package using npm install command:
+
+```
+npm install informixdb
 ```
 
-The driver has prebuilt binaries for **ARM**, **Linux x64** and **Win64**, and it is certified to work with **Raspberry Pi**; all other platforms you may perform a local build. The current version of Informix native node driver (ifxnjs@10.0.x) is being compiled with Node.js v10.15.1 LTS libraries. The driver is expected to work with all node.js version 10x.  
-   
-FYI: **[Informix Client SDK](http://www-01.ibm.com/support/docview.wss?uid=swg27016673) 4.10 xC2 or above** is needed for the driver to make connection to the database. Make sure Informix Client SDK is installed and its environments are set prior to running application.  
-- [Download Informix Client SDK](http://www-01.ibm.com/support/docview.wss?uid=swg27016673)
+> For more installation details please refer:  [INSTALLATION GUIDE](https://github.com/OpenInformix/node-informixdb/blob/master/INSTALL.md)
 
 
-### Runtime Environment
------------------------
-The Informix node.js driver has dependency on **Informix Client SDK version 4.10 xC2 or above**. Make sure to set Informix Client SDK runtime environment before running the applications.  
+### Important Environment Variables and Download Essentials 
 
-Say **INFORMIXDIR** is the location where you have installed Informix Client SDK.
-##### Linux
-```bash
-export LD_LIBRARY_PATH=${INFORMIXDIR}/lib:${INFORMIXDIR}/lib/esql:${INFORMIXDIR}/lib/cli
-```
+`CSDK_HOME :`
 
-##### Windows
-```bat
-SET PATH=%INFORMIXDIR%\bin;%PATH%
-```
+- USE:
+	- On distributed platforms, set this environment variable if you want to compile/build the informixdb module.
 
-## Build the driver from its source code
-----------------------------------------
-The driver has prebuilt native module available for ARM, Linux x64 and Win64, that mean if you are on this platforms in a normal scenario you don’t need to build the driver from its source; just follow the install step mention above and you are good to go. By any chance if you have to build the driver from the source then please follow the step. The driver source code is platform neutral; you may build it on any platforms. If you face any difficulty feel free to reach out to us, we are happy to help you. The following URL has instruction to build it on ARM, Linux and Windows. 
+- HOW:
+	- Set **CSDK_HOME** environment variable to a pre-installed **Informix CSDK or Informix server installation directory**.
 
-* [Linux Build](./LocalBuildLinux.md)
-* [Windows Build](./LocalBuildWindows.md)
+`INFORMIXDIR :`
 
+- USE:
+	- On distributed platforms, set this environment variable if you want to compile/build the informixdb module.
 
-## Connection
--------------
-```javascript
-var dbobj = require('ifxnjs');
-var ConStr = "SERVER=ids0;DATABASE=db1;HOST=127.0.0.1;SERVICE=9088;UID=informix;PWD=xxxx;";
-
-var conn = dbobj.openSync(ConStr);
-
-// FYI: for Asynchronous open then
-// dbobj.open( ConStr, (err, conn) => {} );
-
-// -- -- -- -- -- -- --
-// Do some DB work here
-// -- -- -- -- -- -- --
-
-conn.closeSync();
-```
+- HOW:
+	- Set **INFORMIXDIR** environment variable to a pre-installed **Informix server installation directory**.
 
 
 
-## Example
--------
+## Quick Example
 
 ```javascript
+var informix = require('informixdb');
 
-var dbobj = require('ifxnjs');
-
-function DirExec( conn, ErrIgn, sql )
-{
-  try
-  {
-    var result = conn.querySync( sql );
-    console.log( sql  );
-  }
-  catch (e) 
-  {
-    console.log( "--- " + sql  );
-    if( ErrIgn != 1 )
-    {
-      console.log(e);
-      console.log();
-    }
-  }
-}
-
-function DoSomeWork(err, conn)
-{
-  if (err) 
-  {
-    return console.log(err);
-  }
+informix.open("SERVER=dbServerName;DATABASE=dbName;HOST=hostName;SERVICE=port;UID=userID;PWD=password;", function (err,conn) {
+  if (err) return console.log(err);
   
-  DirExec( conn, 1, "drop table t1" );
-  DirExec( conn, 0, "create table t1 ( c1 int, c2 char(20) ) " );
-  DirExec( conn, 0, "insert into t1 values( 1, 'val-1' )" );
-  DirExec( conn, 0, "insert into t1 values( 2, 'val-2' )" );
-  DirExec( conn, 0, "insert into t1 values( 3, 'val-3' )" );
-  DirExec( conn, 0, "insert into t1 values( 4, 'val-4' )" );
-  DirExec( conn, 0, "insert into t1 values( 5, 'val-5' )" );
-  
-  console.log(" --- SELECT * FROM t1 ------ " );
-  // blocks until the query is completed and all data has been acquired
-  var rows = conn.querySync( "SELECT * FROM t1" );
-  console.log();
-  console.log(rows);
-};
+  conn.query('select 1 from table(set{1})', function (err, data) {
+    if (err) console.log(err);
+    else console.log(data);
 
-
-var MyAsynchronousTask = function (err, conn)
-{
-  DoSomeWork(err, conn);
-  conn.close();
-}
-
-function ifxnjs_Open(ConStr) 
-{
-  console.log(" --- MyAsynchronousTask Starting....." );
-  dbobj.open( ConStr, MyAsynchronousTask );
-  console.log(" --- Check the sequence printed!" );
-}
-
-function ifxnjs_OpenSync(ConStr) 
-{
-  console.log(" --- Executing ifxnjs.openSync() ...." );
-  var conn;
-  try 
-  {
-    conn = dbobj.openSync(ConStr);
-  }
-  catch(e) 
-  {
-    console.log(e);
-    return;
-  }
-  
-  DoSomeWork(0, conn);
-  
-  try 
-  {
-      conn.closeSync();
-  }
-  catch(e) 
-  {
-    console.log(e);
-  }
-  console.log(" --- End ifxnjs.openSync()" );
-}
-
-function main_func()
-{
-  //  Make sure the port is IDS SQLI port.
-  var ConnectionString = "SERVER=ids0;DATABASE=db1;HOST=127.0.0.1;SERVICE=9088;UID=informix;PWD=xxxx;";
-    
-  //Synchronous Execution 
-  ifxnjs_OpenSync(ConnectionString);
-  
-  //Asynchronous Execution
-  ifxnjs_Open(ConnectionString);
-}
-
-main_func();
-
+    conn.close(function () {
+      console.log('done');
+    });
+  });
+});
 ```
 
-API
----
+## How to get an informixdb instance?
 
-### Database
-
-The simple api is based on instances of the `Database` class. You may get an 
-instance in one of the following ways:
+The simple api is based on the instances of `Database` class. You may get an 
+instance by one of the following ways:
 
 ```javascript
-require("ifxnjs").open(connectionString, function (err, conn){
+require("informixdb").open(connectionString, function (err, conn){
   //conn is already open now if err is falsy
 });
 ```
@@ -186,385 +83,89 @@ require("ifxnjs").open(connectionString, function (err, conn){
 or by using the helper function:
 
 ```javascript
-var dbobj = require("ifxnjs")();
+var informix = require("informixdb")();
 ``` 
 
 or by creating an instance with the constructor function:
 
 ```javascript
-var Database = require("ifxnjs").Database
-  , dbobj = new Database();
+var Database = require("informixdb").Database
+  , informix = new Database();
 ```
 
-#### .open(connectionString, [options,] callback)
+## Debug
 
-Open a connection to a database.
-
-* **connectionString** - The connection string for your database
-* **options** - _OPTIONAL_ - Object type. Can be used to avoid multiple 
-    loading of native ODBC library for each call of `.open`.
-* **callback** - `callback (err, conn)`
+If you would like to enable debugging messages to be displayed you can add the 
+flag `DEBUG` to the defines section of the `binding.gyp` file and then execute 
+`node-gyp rebuild`.
 
 ```javascript
-var dbobj = require("ifxnjs");
-
-dbobj.open(connectionString, function (err, connection) {
-    if (err) 
-    {
-      console.log(err);
-      return;
-    }
-    connection.query("select 1 from mytab1", function (err1, rows) 
-    {
-      if (err1) console.log(err1);
-      else console.log(rows);
-      connection.close(function(err2) 
-      { 
-        if(err2) console.log(err2);
-      });
-    });
-};
-
+<snip>
+'defines' : [
+  "DEBUG"
+],
+<snip>
 ```
 
-#### .openSync(connectionString)
+## Un-Install
 
-Synchronously open a connection to a database.
+To uninstall informixdb from your system, just delete the node-informixdb or informixdb directory.
 
-* **connectionString** - The connection string for your database
 
-```javascript
-var dbobj = require("ifxnjs"),
-  connString = "SERVER=ids0;DATABASE=db1;HOST=127.0.0.1;SERVICE=9088;UID=informix;PWD=xxxx;"
+## For AIX install issue
 
-try {
-  var conn = dbobj.openSync(connString);
-  conn.query("select * from customers fetch first 10 rows only", function (err, rows, moreResultSets) {
-    if (err) {
-      console.log(err);
-    } else {
-      console.log(rows);
-    }
-    conn.close();  
-  });
-} catch (e) {
-  console.log(e.message);
-}
-```
+If `npm install informixdb` aborts with "Out Of Memory" error on AIX, first run `ulimit -d unlimited` and then `npm install informixdb`.
 
-#### .query(sqlQuery [, bindingParameters], callback)
 
-Issue an asynchronous SQL query to the database which is currently open.
+## Need Help?
 
-* **sqlQuery** - The SQL query to be executed.
-* **bindingParameters** - _OPTIONAL_ - An array of values that will be bound to
-    any '?' characters in `sqlQuery`.
-* **callback** - `callback (err, rows, moreResultSets)`
+The development activities of the driver are powered by passion, dedication and independent thinking. You may send pull request, together we grow as an open community. Relevant discussion and queries are answered by community through Stack Overflow. 
+http://stackoverflow.com/questions/tagged/informix
+   
+If no solution found, you can open a new issue on GitHub.
 
-```javascript
-var dbobj = require("ifxnjs"),
-   cn = "SERVER=ids0;DATABASE=db1;HOST=127.0.0.1;SERVICE=9088;UID=informix;PWD=xxxx;"
 
-dbobj.open(cn, function (err, conn) {
-  if (err) {
-    return console.log(err);
-  }
+## Contributors
 
-  //we now have an open connection to the database
-  //so lets get some data
-  conn.query("select * from customers fetch first 10 rows only", function (err, rows, moreResultSets) {
-    if (err) {
-      console.log(err);
-    } else {
-    
-      console.log(rows);
-    }
-
-    //if moreResultSets is truthy, then this callback function will be called
-    //again with the next set of rows.
-  });
-});
-```
-
-#### .querySync(sqlQuery [, bindingParameters])
-
-Synchronously issue a SQL query to the database that is currently open.
-
-* **sqlQuery** - The SQL query to be executed.
-* **bindingParameters** - _OPTIONAL_ - An array of values that will be bound to
-    any '?' characters in `sqlQuery`.
-
-```javascript
-var dbobj = require("ifxnjs"),
-   cn = "SERVER=ids0;DATABASE=db1;HOST=127.0.0.1;SERVICE=9088;UID=informix;PWD=xxxx;"
-
-dbobj.open(cn, function(err, conn){
-
-    //blocks until the query is completed and all data has been acquired
-    var rows = conn.querySync("select * from customers fetch first 10 rows only");
-
-    console.log(rows);
-})
-```
-
-#### .close(callback)
-
-Close the currently opened database.
-
-* **callback** - `callback (err)`
-
-```javascript
-var dbobj = require("ifxnjs"),
-   cn = "SERVER=ids0;DATABASE=db1;HOST=127.0.0.1;SERVICE=9088;UID=informix;PWD=xxxx;"
-
-dbobj.open(cn, function (err, conn) {
-  if (err) {
-    return console.log(err);
-  }
-  
-  //we now have an open connection to the database
-  
-  conn.close(function (err) {
-    console.log("the database connection is now closed");
-  });
-});
-```
-
-#### .closeSync()
-
-Synchronously close the currently opened database.
-
-```javascript
-var dbobj = require("ifxnjs")(),
-   cn = "SERVER=ids0;DATABASE=db1;HOST=127.0.0.1;SERVICE=9088;UID=informix;PWD=xxxx;"
-
-//Blocks until the connection is open
-var conn = dbobj.openSync(cn);
-
-//Blocks until the connection is closed
-conn.closeSync();
-```
-
-#### .prepare(sql, callback)
-
-Prepare a statement for execution.
-
-* **sql** - SQL string to prepare
-* **callback** - `callback (err, stmt)`
-
-Returns a `Statement` object via the callback
-
-```javascript
-var dbobj = require("ifxnjs"),
-   cn = "SERVER=ids0;DATABASE=db1;HOST=127.0.0.1;SERVICE=9088;UID=informix;PWD=xxxx;"
-
-dbobj.open(cn,function(err,conn){
-  conn.prepare("insert into hits (col1, col2) VALUES (?, ?)", function (err, stmt) {
-    if (err) {
-      //could not prepare for some reason
-      console.log(err);
-      return conn.closeSync();
-    }
-
-    //Bind and Execute the statment asynchronously
-    stmt.execute(['something', 42], function (err, result) {
-      if( err ) console.log(err);  
-      else result.closeSync();
-
-      //Close the connection
-    conn.close(function(err){}));
-    });
-  });
-});
-```
-
-#### .prepareSync(sql)
-
-Synchronously prepare a statement for execution.
-
-* **sql** - SQL string to prepare
-
-Returns a `Statement` object
-
-```javascript
-var dbobj = require("ifxnjs"),
-   cn = "SERVER=ids0;DATABASE=db1;HOST=127.0.0.1;SERVICE=9088;UID=informix;PWD=xxxx;"
-
-dbobj.open(cn,function(err,conn){
-  var stmt = conn.prepareSync("insert into hits (col1, col2) VALUES (?, ?)");
-
-  //Bind and Execute the statment asynchronously
-  stmt.execute(['something', 42], function (err, result) {
-    result.closeSync();
-
-    //Close the connection
-  conn.close(function(err){}));
-  });
-});
-```
-
-#### .beginTransaction(callback)
-
-Begin a transaction
-
-* **callback** - `callback (err)`
-
-#### .beginTransactionSync()
-
-Synchronously begin a transaction
-
-#### .commitTransaction(callback)
-
-Commit a transaction
-
-* **callback** - `callback (err)`
-
-```javascript
-var dbobj = require("ifxnjs"),
-   cn = "SERVER=ids0;DATABASE=db1;HOST=127.0.0.1;SERVICE=9088;UID=informix;PWD=xxxx;"
-
-dbobj.open(cn, function(err,conn) {
-
-  conn.beginTransaction(function (err) {
-    if (err) {
-      //could not begin a transaction for some reason.
-      console.log(err);
-      return conn.closeSync();
-    }
-
-    var result = conn.querySync("insert into customer (customerCode) values ('stevedave')");
-
-    conn.commitTransaction(function (err) {
-      if (err) {
-        //error during commit
-        console.log(err);
-        return conn.closeSync();
-      }
-
-    console.log(conn.querySync("select * from customer where customerCode = 'stevedave'"));
-
-     //Close the connection
-     conn.closeSync();
-    });
-  });
-});
-```
-
-#### .commitTransactionSync()
-
-Synchronously commit a transaction
-
-```javascript
-var dbobj = require("ifxnjs"),
-   cn = "SERVER=ids0;DATABASE=db1;HOST=127.0.0.1;SERVICE=9088;UID=informix;PWD=xxxx;"
-
-dbobj.open(cn, function(err,conn) {
-
-  conn.beginTransaction(function (err) {
-    if (err) {
-      //could not begin a transaction for some reason.
-      console.log(err);
-      return conn.closeSync();
-    }
-
-    var result = conn.querySync("insert into customer (customerCode) values ('stevedave')");
-
-    conn.commitTransactionSync();
-
-    console.log(conn.querySync("select * from customer where customerCode = 'stevedave'"));
-
-     //Close the connection
-    conn.closeSync();
-  });
-});
-```
-
-#### .rollbackTransaction(callback)
-
-Rollback a transaction
-
-* **callback** - `callback (err)`
-
-```javascript
-var dbobj = require("ifxnjs"),
-   cn = "SERVER=ids0;DATABASE=db1;HOST=127.0.0.1;SERVICE=9088;UID=informix;PWD=xxxx;"
-
-dbobj.open(cn, function(err,conn) {
-
-  conn.beginTransaction(function (err) {
-    if (err) {
-      //could not begin a transaction for some reason.
-      console.log(err);
-      return conn.closeSync();
-    }
-
-    var result = conn.querySync("insert into customer (customerCode) values ('stevedave')");
-
-    conn.rollbackTransaction(function (err) {
-      if (err) {
-        //error during rollback
-        console.log(err);
-        return conn.closeSync();
-      }
-
-    console.log(conn.querySync("select * from customer where customerCode = 'stevedave'"));
-
-     //Close the connection
-     conn.closeSync();
-    });
-  });
-});
-```
-
-#### .rollbackTransactionSync()
-
-Synchronously rollback a transaction
-
-```javascript
-var dbobj = require("ifxnjs")
-   cn = "SERVER=ids0;DATABASE=db1;HOST=127.0.0.1;SERVICE=9088;UID=informix;PWD=xxxx;"
-
-dbobj.open(cn, function(err,conn) {
-
-  conn.beginTransaction(function (err) {
-    if (err) {
-      //could not begin a transaction for some reason.
-      console.log(err);
-      return conn.closeSync();
-    }
-
-    var result = conn.querySync("insert into customer (customerCode) values ('stevedave')");
-
-    conn.rollbackTransactionSync();
-
-    console.log(conn.querySync("select * from customer where customerCode = 'stevedave'"));
-
-     //Close the connection
-    conn.closeSync();
-  });
-});
-```
-
-----------
-
-### Connection Pool
-Work in progress...... 
-
-
-contributors
-------------
-* Javier Sagrera
+* Rohit Pandey (rht.uimworld@gmail.com)
 * Sathyanesh Krishnan (msatyan@gmail.com)
+* Javier Sagrera
+* Dan VerWeire (dverweire@gmail.com)
+* Lee Smith (notwink@gmail.com)
+* HCL/IBM
 
+## Contributing to the informixdb
 
+[Contribution Guidelines](https://github.com/OpenInformix/node-informixdb/blob/master/contributing/CONTRIBUTING.md)
 
-license
--------
-Copyright (c) 2017 Sathyanesh Krishnan <msatyan@gmail.com>
+```
+Contributor should add a reference to the DCO sign-off as comment in the pull request(example below):
+DCO 1.1 Signed-off-by: Random J Developer <random@developer.org>
+```
 
-Copyright (c) 2017 Javier Sagrera
+## License
 
-Copyright (c) 2013 Dan VerWeire <dverweire@gmail.com>
+Copyright (c) 2017 OpenInformix (HCL Technologies)
 
-Copyright (c) 2010 Lee Smith <notwink@gmail.com>
+Copyright (c) 2014 IBM Corporation
 
+Copyright (c) 2013 Dan VerWeire dverweire@gmail.com
+
+Copyright (c) 2010 Lee Smith notwink@gmail.com
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of 
+this software and associated documentation files (the "Software"), to deal in 
+the Software without restriction, including without limitation the rights to 
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR 
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER 
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.

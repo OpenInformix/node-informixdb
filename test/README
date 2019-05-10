@@ -1,4 +1,4 @@
-IfxNode Test Suite
+Node-informixdb Test Suite
 
 Connection info must be specified in the environment. 
 For example, by sourcing the following ENV Vars:
@@ -12,7 +12,7 @@ export IFX_SERVICE=<Database Port>
 
 OR,
     If not using ENV Vars,Update connection info in 
-    ibm_db/test/config.testConnectionStrings.json file.
+    informixdb/test/config.testConnectionStrings.json file.
 
 Connection info set in ENV vars will take priority over
 connection info in config.testConnectionStrings.json file, 
@@ -21,7 +21,7 @@ if connection info is set at both places.
 The test suite needs the 'moment' module to be installed ('npm install moment').
 To run the whole set run 'node run-tests.js'
 	
-	informix@irk21:/usr3/products/IfxNode/test$ node run-tests.js
+	informix@irk21:/usr3/products/informixdb/test$ node run-tests.js
 	Running test for [Informix] : test-all-data-types ... success
 	Running test for [Informix] : test-bad-connection-string ... success
 	Running test for [Informix] : test-basic-test ... success

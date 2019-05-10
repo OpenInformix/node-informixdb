@@ -13,7 +13,7 @@ var fs = require("fs")
 // Check for async module, which is required to run nodeEE test files.
 // Do not add async and moment in package.json as it is not required during installation.
 // We do not want installation to be dependent on async and moment. Else, if async
-// or moment fails to install, installation of ibm_db too will fail.
+// or moment fails to install, installation of informixdb too will fail.
 // Install async and moment only if it is required.
 if(fs.accessSync(path.resolve("../node_modules/async")))
 {

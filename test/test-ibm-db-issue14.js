@@ -1,5 +1,5 @@
 /* Test program to access Informix sample database  */
-/*require the ibm_db module*/
+/*require the informixdb module*/
 var common = require("./common")
   , assert = require("assert")
   , ifxnjs = require("../");

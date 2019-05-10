@@ -1,9 +1,9 @@
 { 
-  "SERVER" : "ids1210",
-  "DATABASE" : "db1",
+  "SERVER" : "infx1",
+  "DATABASE" : "nodedb",
   "UID" : "informix",
-  "PWD" : "xxxxx",
-  "HOSTNAME" : "127.0.0.1",
-  "SERVICE" : 9088,
+  "PWD" : "*****",
+  "HOSTNAME" : "localhost",
+  "SERVICE" : 9018,
   "PROTOCOL" : "onsoctcp" 
 }
