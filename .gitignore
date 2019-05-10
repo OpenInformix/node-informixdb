@@ -1,0 +1,27 @@
+
+package-lock.json
+
+#vs Code IDE configuration files
+.vscode
+.vs
+*.VC.db
+
+
+**/*.map
+**/node_modules
+
+build
+try
+try/**
+
+###
+Debug
+Debug/*
+Release
+Release/*
+*.user
+
+0.*
+1.*
+tmp.*
+*.tmp
