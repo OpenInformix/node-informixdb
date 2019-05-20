@@ -66,6 +66,7 @@ void ODBCConnection::Init(v8::Handle<Object> exports) {
   Nan::SetPrototypeMethod(constructor_template, "close", Close);
   Nan::SetPrototypeMethod(constructor_template, "closeSync", CloseSync);
   Nan::SetPrototypeMethod(constructor_template, "createDbSync", CreateDbSync);
+  Nan::SetPrototypeMethod(constructor_template, "dropDbSync", DropDbSync);
   Nan::SetPrototypeMethod(constructor_template, "createStatement", CreateStatement);
   Nan::SetPrototypeMethod(constructor_template, "createStatementSync", CreateStatementSync);
   Nan::SetPrototypeMethod(constructor_template, "query", Query);
@@ -727,6 +728,114 @@ NAN_METHOD(ODBCConnection::CreateDbSync)
   }
 
   DEBUG_PRINTF("ODBCConnection::CreateDbSync - Exit\n");
+
+  if (err) {
+    return Nan::ThrowError(objError);
+  }
+  else {
+    info.GetReturnValue().Set(Nan::True());
+  }
+}
+
+/*
+ * DropDbSync -- Drop a Database
+ *
+ * ===Description
+ * Drops a database with the specified name. Returns true if operation successful else false
+ *
+ * ===Parameters
+ *
+ * Connection handle.
+ *
+ * dropDbSQL
+ *     SQL to drop the Database.
+ *
+ * ===Return Values
+ *
+ * Returns TRUE on success or FALSE on failure. 
+ */
+NAN_METHOD(ODBCConnection::DropDbSync)
+{
+  DEBUG_PRINTF("ODBCConnection::DropDbSync - Entry\n");
+  Nan::HandleScope scope;
+
+#ifdef UNICODE
+  String::Value* dropDbSQL;
+#else
+  String::Utf8Value* dropDbSQL;
+#endif
+
+  ODBCConnection* conn = Nan::ObjectWrap::Unwrap<ODBCConnection>(info.Holder());
+
+  SQLRETURN ret;
+  SQLHSTMT hSTMT;
+
+  Local<Value> objError;
+  bool err = false;
+
+  //Check arguments dropDbSQL is required
+  if (!info[0]->IsString())
+  {
+    return Nan::ThrowTypeError("ODBCConnection::QuerySync(): Argument 0 must be an String.");
+  }
+
+#ifdef UNICODE
+    dropDbSQL = new String::Value(info[0]->ToString());
+#else
+    dropDbSQL = new String::Utf8Value(info[0]->ToString());
+#endif
+  // Done checking arguments
+
+  // Allocate a new Statement Handle
+  ret = SQLAllocHandle( SQL_HANDLE_STMT,
+                        conn->m_hDBC,
+                        &hSTMT );
+
+  DEBUG_PRINTF("ODBCConnection::DropDbSync() - hSTMT=%X\n", hSTMT);
+
+  if (!SQL_SUCCEEDED(ret))
+  {
+    err = true;
+    objError = ODBC::GetSQLError(SQL_HANDLE_STMT, conn->self()->m_hDBC);
+  }
+  else
+  {
+    // Execute the query directly
+    ret = SQLExecDirect(
+      hSTMT,
+      (SQLTCHAR *) **dropDbSQL,
+      dropDbSQL->length());
+
+    delete dropDbSQL;
+
+    if (ret == SQL_ERROR)
+    {
+      err = true;
+      objError = ODBC::GetSQLError(SQL_HANDLE_STMT, conn->self()->m_hDBC);
+    }
+
+    // free the statement handle
+    SQLFreeHandle(SQL_HANDLE_STMT, hSTMT);
+    hSTMT = (SQLHSTMT)NULL;
+  }
+
+  /* disconnect from the database */
+  ret = SQLDisconnect(conn->m_hDBC);
+  if (!SQL_SUCCEEDED(ret))
+  {
+    err = true;
+    objError = ODBC::GetSQLError(SQL_HANDLE_DBC, conn->self()->m_hDBC);
+  }
+
+  //free the database handle
+  ret = SQLFreeHandle( SQL_HANDLE_DBC, conn->m_hDBC);
+  if (!SQL_SUCCEEDED(ret))
+  {
+    err = true;
+    objError = ODBC::GetSQLError(SQL_HANDLE_DBC, conn->self()->m_hDBC);
+  }
+
+  DEBUG_PRINTF("ODBCConnection::DropDbSync - Exit\n");
 
   if (err) {
     return Nan::ThrowError(objError);
