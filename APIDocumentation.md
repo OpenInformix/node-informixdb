@@ -33,11 +33,8 @@
 24. [.commitTransactionSync()](#commitTransactionSyncApi)
 25. [.rollbackTransaction(callback)](#rollbackTransactionApi)
 26. [.rollbackTransactionSync()](#rollbackTransactionSyncApi)
-27. [.setIsolationLevel(isolationLevel)](#setIsolationLevelApi)
-28. [.getColumnNamesSync()](#getColumnNamesSyncApi)
-29. [.getColumnMetadataSync()](#getColumnMetadataSyncApi)
-30. [.getSQLErrorSync()](#getSQLErrorSyncApi)
-31. [.debug(value)](#enableDebugLogs)
+27. [.getColumnNamesSync()](#getColumnNamesSyncApi)
+28. [.debug(value)](#enableDebugLogs)
 
 *   [**Connection Pooling APIs**](#PoolAPIs)
 *   [**bindingParameters**](#bindParameters)
@@ -61,18 +58,17 @@ var informix = require("informixdb")
   , connStr = "SERVER=dbServerName;DATABASE=dbName;HOST=hostName;SERVICE=port;UID=userID;PWD=password;";
 
 informix.open(connStr, function (err, connection) {
-    if (err)
-    {
-      console.log(err);
-      return;
-    }
-    connection.query("select 1 from sysibm.sysdummy1", function (err1, rows) {
-      if (err1) console.log(err1);
-      else console.log(rows);
-      connection.close(function(err2) {
-        if(err2) console.log(err2);
-      });
+  if (err) {
+    console.log(err);
+    return;
+  }
+  connection.query("select * from testtable", function (err1, rows) {
+    if (err1) console.log(err1);
+    else console.log(rows);
+    connection.close(function (err2) {
+      if (err2) console.log(err2);
     });
+  });
 });
 
 ```
@@ -101,22 +97,22 @@ Synchronously open a connection to a database.
 
 ```javascript
 var informix = require("informixdb"),
-	connString = "SERVER=dbServerName;DATABASE=dbName;HOST=hostName;SERVICE=port;UID=userID;PWD=password;";
+	connStr = "SERVER=dbServerName;DATABASE=dbName;HOST=hostName;SERVICE=port;UID=userID;PWD=password;";
 
 try {
-      var option = { connectTimeout : 40, systemNaming : true };// Connection Timeout after 40 seconds.
-      var conn = informix.openSync(connString, option);
-      conn.query("select * from customers fetch first 10 rows only", function (err, rows) {
-		if (err) {
-			console.log(err);
-		} else {
-		  console.log(rows);
-		}
-		conn.close();
-      });
-    } catch (e) {
-      console.log(e.message);
+  var option = { connectTimeout: 40, systemNaming: true };// Connection Timeout after 40 seconds.
+  var conn = informix.openSync(connStr, option);
+  conn.query("select * from testtable", function (err, rows) {
+    if (err) {
+      console.log(err);
+    } else {
+      console.log(rows);
     }
+    conn.close();
+  });
+} catch (e) {
+  console.log(e.message);
+}
 ```
 
 ### <a name="queryApi"></a> 3) .query(sqlQuery [, bindingParameters], callback)
@@ -133,26 +129,21 @@ If true - query() will not return any result. "sql" field is mandatory in Object
 
 ```javascript
 var informix = require("informixdb")
-	, cn = "SERVER=dbServerName;DATABASE=dbName;HOST=hostName;SERVICE=port;UID=userID;PWD=password;"
+	, connStr = "SERVER=dbServerName;DATABASE=dbName;HOST=hostName;SERVICE=port;UID=userID;PWD=password;"
 	;
 
-informix.open(cn, function (err, conn) {
+informix.open(connStr, function (err, conn) {
+  if (err) {
+    return console.log(err);
+  }
+  // we now have an open connection to the database, so lets get some data.
+  conn.query("select * from testtable", function (err, rows, sqlca) {
     if (err) {
-      return console.log(err);
+      console.log(err);
+    } else {
+      console.log(rows);
     }
-
-    // we now have an open connection to the database, so lets get some data.
-    // Execute multiple query and get multiple result sets.
-    // In case of multiple resultset, query will return an array of result sets.
-    conn.query("select 1 from sysibm.sysdummy1;select 2 from sysibm.sysdummy1;" +
-               "select 3 from sysibm.sysdummy1", function (err, rows, sqlca)
-    {
-        if (err) {
-            console.log(err);
-        } else {
-            console.log(rows); // rows = [ [ { '1': 1 } ], [ { '1': 2 } ], [ { '1': 3 } ] ]
-        }
-    });
+  });
 });
 ```
 
@@ -168,12 +159,12 @@ If true - query() will not return any result. If noResults is true for CALL stat
 
 ```javascript
 var informix = require("informixdb")
-  , cn = "SERVER=dbServerName;DATABASE=dbName;HOST=hostName;SERVICE=port;UID=userID;PWD=password;";
+  , connStr = "SERVER=dbServerName;DATABASE=dbName;HOST=hostName;SERVICE=port;UID=userID;PWD=password;";
 
-informix.open(cn, function(err, conn){
+informix.open(connStr, function (err, conn) {
 
   //blocks until the query is completed and all data has been acquired
-  var rows = conn.querySync("select * from customers fetch first 10 rows only");
+  var rows = conn.querySync("select * from testtable");
 
   console.log(rows);
 });
@@ -192,20 +183,19 @@ and take action.
 
 ```javascript
 var informix = require("informixdb")
-  , cn = "SERVER=dbServerName;DATABASE=dbName;HOST=hostName;SERVICE=port;UID=userID;PWD=password;";
+  , connStr = "SERVER=dbServerName;DATABASE=dbName;HOST=hostName;SERVICE=port;UID=userID;PWD=password;";
 
-informix.open(cn, function(err, conn)
-{
-    var stream = conn.queryStream("select 1 from sysibm.sysdummy1");
+informix.open(connStr, function (err, conn) {
+  var stream = conn.queryStream("select * from testtable");
 
-    stream.once('data', function (result) {
-      console.log(result);
-    }).once('error', function (err) {
-      conn.closeSync();
-      throw err;
-    }).once('end', function () {
-      conn.close(function(){ console.log("done.") });
-    });
+  stream.once('data', function (result) {
+    console.log(result);
+  }).once('error', function (err) {
+    conn.closeSync();
+    throw err;
+  }).once('end', function () {
+    conn.close(function () { console.log("done.") });
+  });
 });
 ```
 
@@ -226,21 +216,21 @@ outparams is returned only for CALL statement with OUT parameters. Any resultset
 
 ```javascript
 var informix = require("informixdb")
-	, cn = "SERVER=dbServerName;DATABASE=dbName;HOST=hostName;SERVICE=port;UID=userID;PWD=password;"
-	;
-informix.open(cn, function (err,conn) {
-    if (err) return console.log(err);
-    var query = 'select creator, name from sysibm.systables where 1 = ?';
-    conn.queryResult(query, [1], function (err, result) {
-        if(err) { console.log(err); }
-        else {
-          console.log("data = ", result.fetchAllSync());
-          console.log("metadata = ", result.getColumnMetadataSync());
-          result.closeSync(); // Must call in application.
-          conn.closeSync();
-          console.log("Executed ", ++loop, " times.");
-        }
-    });
+	, connStr = "SERVER=dbServerName;DATABASE=dbName;HOST=hostName;SERVICE=port;UID=userID;PWD=password;";
+
+informix.open(connStr, function (err, conn) {
+  if (err) return console.log(err);
+  var query = 'select id, name from testtable where 1 = ?';
+  conn.queryResult(query, [1], function (err, result) {
+    if (err) { console.log(err); }
+    else {
+      console.log("data = ", result.fetchAllSync());
+      // Not supported for now.
+      //console.log("metadata = ", result.getColumnMetadataSync());
+      result.closeSync(); // Must call in application.
+      conn.closeSync();
+    }
+  });
 });
 ```
 **Note:** Once you are done with the `result` object, must close it to avoid error when garbage collector of javascript free it. Not calling the `result.closeSync() may cause invalid handle error in application or no data.
@@ -258,14 +248,15 @@ Synchronously issue a SQL query to the database that is currently open and retur
 
 ```javascript
 var informix = require("informixdb")
-  , cn = "SERVER=dbServerName;DATABASE=dbName;HOST=hostName;SERVICE=port;UID=userID;PWD=password;";
+  , connStr = "SERVER=dbServerName;DATABASE=dbName;HOST=hostName;SERVICE=port;UID=userID;PWD=password;";
 
-informix.open(cn, function(err, conn){
+informix.open(connStr, function (err, conn) {
   if (err) return console.log(err);
-  var query = 'select creator, name from sysibm.systables';
+  var query = 'select id, name from testtable';
   var result = conn.queryResultSync(query);
   console.log("data = ", result.fetchAllSync());
-  console.log("metadata = ", result.getColumnMetadataSync());
+  // Not supported for now.
+  //console.log("metadata = ", result.getColumnMetadataSync());
   result.closeSync(); // Must call to free to avoid application error.
   conn.closeSync();
 });
@@ -282,17 +273,16 @@ Close the currently opened database.
 
 ```javascript
 var informix = require("informixdb")
-  , cn = "SERVER=dbServerName;DATABASE=dbName;HOST=hostName;SERVICE=port;UID=userID;PWD=password;";
+  , connStr = "SERVER=dbServerName;DATABASE=dbName;HOST=hostName;SERVICE=port;UID=userID;PWD=password;";
 
-informix.open(cn, function (err, conn) {
-	if (err) {
-		return console.log(err);
-	}
-
-	//we now have an open connection to the database
-	conn.close(function (err) {
-		console.log("the database connection is now closed");
-	});
+informix.open(connStr, function (err, conn) {
+  if (err) {
+    return console.log(err);
+  }
+  //we now have an open connection to the database
+  conn.close(function (err) {
+    console.log("the database connection is now closed");
+  });
 });
 ```
 
@@ -302,10 +292,10 @@ Synchronously close the currently opened database.
 
 ```javascript
 var informix = require("informixdb")()
-  , cn = "SERVER=dbServerName;DATABASE=dbName;HOST=hostName;SERVICE=port;UID=userID;PWD=password;";
+  , connStr = "SERVER=dbServerName;DATABASE=dbName;HOST=hostName;SERVICE=port;UID=userID;PWD=password;";
 
 //Blocks until the connection is open
-informix.openSync(cn);
+informix.openSync(connStr);
 
 //Blocks until the connection is closed
 informix.closeSync();
@@ -322,10 +312,10 @@ Returns a `Statement` object via the callback
 
 ```javascript
 var informix = require("informixdb")
-  , cn = "SERVER=dbServerName;DATABASE=dbName;HOST=hostName;SERVICE=port;UID=userID;PWD=password;";
+  , connStr = "SERVER=dbServerName;DATABASE=dbName;HOST=hostName;SERVICE=port;UID=userID;PWD=password;";
 
-informix.open(cn,function(err,conn){
-  conn.prepare("insert into hits (col1, col2) VALUES (?, ?)", function (err, stmt) {
+informix.open(connStr, function (err, conn) {
+  conn.prepare("insert into testtable (id, name) VALUES (?, ?)", function (err, stmt) {
     if (err) {
       //could not prepare for some reason
       console.log(err);
@@ -333,12 +323,14 @@ informix.open(cn,function(err,conn){
     }
 
     //Bind and Execute the statment asynchronously
-    stmt.execute(['something', 42], function (err, result) {
-      if( err ) console.log(err);
-      else result.closeSync();
-
+    stmt.execute([8, "Rohit"], function (err, result) {
+      if (err) console.log(err);
+      else {
+        console.log("data inserted")
+        result.closeSync();
+      }
       //Close the connection
-	  conn.close(function(err){});
+      conn.close(function (err) { });
     });
   });
 });
@@ -354,20 +346,20 @@ Returns a `Statement` object
 
 ```javascript
 var informix = require("informixdb")
-  , cn = "SERVER=dbServerName;DATABASE=dbName;HOST=hostName;SERVICE=port;UID=userID;PWD=password;";
+  , connStr = "SERVER=dbServerName;DATABASE=dbName;HOST=hostName;SERVICE=port;UID=userID;PWD=password;";
 
-informix.open(cn,function(err,conn){
-  var stmt = conn.prepareSync("select * from employee where empid = ?");
+informix.open(connStr, function (err, conn) {
+  var stmt = conn.prepareSync("select * from testtable where id = ?");
 
   //Bind and Execute the statment asynchronously
-  stmt.execute([142], function (err, result) {
+  stmt.execute([8], function (err, result) {
     data = result.fetchAllSync();
     console.log(data);
     result.closeSync();
     stmt.closeSync();
 
     //Close the connection
-	conn.close(function(err){});
+    conn.close(function (err) { });
   });
 });
 ```
@@ -397,28 +389,28 @@ Returns a `Statement` object via the callback
 
 ```javascript
 var informix = require("informixdb")
-  , cn = "SERVER=dbServerName;DATABASE=dbName;HOST=hostName;SERVICE=port;UID=userID;PWD=password;";
+  , connStr = "SERVER=dbServerName;DATABASE=dbName;HOST=hostName;SERVICE=port;UID=userID;PWD=password;";
 
-informix.open(cn,function(err,conn){
-  conn.querySync("create table mytab (id int, photo BLOB(30K))");
-  conn.prepare("insert into mytab (id, photo) VALUES (?, ?)", function (err, stmt) {
+informix.open(connStr, function (err, conn) {
+  conn.querySync("create table mytab (id int, name char(10))");
+  conn.prepare("insert into mytab (id, name) VALUES (?, ?)", function (err, stmt) {
     if (err) {
       //could not prepare for some reason
       console.log(err);
       return conn.closeSync();
     }
 
-    // Create params object
-    var img = {ParamType:"FILE", DataType: "BLOB", "Data": "smile.jpg"};
-
     //Bind and Execute the statment asynchronously
-    stmt.execute([ 42, img ], function (err, result) {
-      if( err ) console.log(err);
-      else result.closeSync();
+    stmt.execute([10, "Informix"], function (err, result) {
+      if (err) console.log(err);
+      else {
+        console.log("data inserted");
+        result.closeSync();
+      }
 
       //Close the connection
       stmt.closeSync();
-	  conn.close(function(err){});
+      conn.close(function (err) { });
     });
   });
 });
@@ -434,20 +426,20 @@ Returns a `Statement` object. If prepared statement is a stored procedure with I
 
 ```javascript
 var informix = require("informixdb")
-  , cn = "SERVER=dbServerName;DATABASE=dbName;HOST=hostName;SERVICE=port;UID=userID;PWD=password;";
+  , connStr = "SERVER=dbServerName;DATABASE=dbName;HOST=hostName;SERVICE=port;UID=userID;PWD=password;";
 
-informix.open(cn,function(err,conn){
-  var stmt = conn.prepareSync("select empname from emptable where empid = ?");
+informix.open(connStr, function (err, conn) {
+  var stmt = conn.prepareSync("select name from testtable where id = ?");
 
   //Bind and Execute the statment asynchronously
-  var result = stmt.executeSync([142]);
-  var data = result.fetchAllSync({fetchMode:3}); // Fetch data in Array mode.
+  var result = stmt.executeSync([2]);
+  var data = result.fetchAllSync({ fetchMode: 3 }); // Fetch data in Array mode.
   console.log(data);
   result.closeSync();
   stmt.closeSync();
 
   //Close the connection
-  conn.close(function(err){});
+  conn.close(function (err) { });
 });
 ```
 
@@ -462,9 +454,9 @@ It returns the number of rows in a table that were affected by an UPDATE, an INS
 
 ```javascript
 var informix = require("informixdb")
-  , cn = "SERVER=dbServerName;DATABASE=dbName;HOST=hostName;SERVICE=port;UID=userID;PWD=password;";
+  , connStr = "SERVER=dbServerName;DATABASE=dbName;HOST=hostName;SERVICE=port;UID=userID;PWD=password;";
 
-informix.open(cn,function(err,conn){
+informix.open(connStr, function (err, conn) {
   conn.querySync("create table mytab (id int, text varchar(30))");
   conn.prepare("insert into mytab (id, text) VALUES (?, ?)", function (err, stmt) {
     if (err) {
@@ -473,12 +465,12 @@ informix.open(cn,function(err,conn){
     }
 
     //Bind and Execute the statment asynchronously
-    stmt.executeNonQuery([ 42, 'hello world' ], function (err, ret) {
-      if( err ) console.log(err);
+    stmt.executeNonQuery([42, 'hello world'], function (err, ret) {
+      if (err) console.log(err);
       else console.log("Affected rows = " + ret);
 
       //Close the connection
-	  conn.close(function(err){});
+      conn.close(function (err) { });
     });
   });
 });
@@ -495,9 +487,9 @@ Fetch a row of data from ODBCResult object asynchronously.
 
 ```javascript
 var informix = require("informixdb")
-  , cn = "SERVER=dbServerName;DATABASE=dbName;HOST=hostName;SERVICE=port;UID=userID;PWD=password;";
+  , connStr = "SERVER=dbServerName;DATABASE=dbName;HOST=hostName;SERVICE=port;UID=userID;PWD=password;";
 
-informix.open(cn,function(err,conn){
+informix.open(connStr, function (err, conn) {
   conn.querySync("create table hits (col1 varchar(40), col2 int)");
   conn.querySync("insert into hits values ('something', 42)");
   conn.querySync("insert into hits values ('für', 43)");
@@ -508,20 +500,20 @@ informix.open(cn,function(err,conn){
       return conn.closeSync();
     }
     stmt.execute(function (err, result) {
-      if( err ) console.log(err);
+      if (err) console.log(err);
       result.fetch(function (err, row) {
-          if(err) { console.log(err); }
-          else {
-            console.log("Row1 = ", row);
-            result.fetch({fetchMode:3}, function (err, row) {
-              if(err) { console.log(err); }
-              console.log("Row2 = ", row);
-              result.closeSync();
-              conn.querySync("drop table hits");
-              //Close the connection
-              conn.close(function(err){console.log("Connection Closed.");});
-            });
-          }
+        if (err) { console.log(err); }
+        else {
+          console.log("Row1 = ", row);
+          result.fetch({ fetchMode: 3 }, function (err, row) {
+            if (err) { console.log(err); }
+            console.log("Row2 = ", row);
+            result.closeSync();
+            conn.querySync("drop table hits");
+            //Close the connection
+            conn.close(function (err) { console.log("Connection Closed."); });
+          });
+        }
       });
     });
   });
@@ -537,16 +529,16 @@ Fetch a row of data from ODBCResult object synchronously.
 
 ```javascript
 var informix = require("informixdb")
-  , cn = "SERVER=dbServerName;DATABASE=dbName;HOST=hostName;SERVICE=port;UID=userID;PWD=password;";
+  , connStr = "SERVER=dbServerName;DATABASE=dbName;HOST=hostName;SERVICE=port;UID=userID;PWD=password;";
 
-informix.open(cn,function(err,conn){
+informix.open(connStr, function (err, conn) {
   conn.querySync("create table hits (col1 varchar(40), col2 int)");
   conn.querySync("insert into hits values ('something', 42)");
   conn.querySync("insert into hits values ('für', 43)");
   var stmt = conn.prepareSync("select * from hits");
   var result = stmt.executeSync();
   var data = 0;
-  while( data = result.fetchSync({fetchMode:3}) ) {
+  while (data = result.fetchSync({ fetchMode: 3 })) {
     console.log(data);
   }
   result.closeSync();
@@ -566,9 +558,10 @@ Fetch all rows from ODBCResult object asynchronously for the executed statement.
 
 ```javascript
 var informix = require("informixdb")
-  , cn = "SERVER=dbServerName;DATABASE=dbName;HOST=hostName;SERVICE=port;UID=userID;PWD=password;";
+  , connStr = "SERVER=dbServerName;DATABASE=dbName;HOST=hostName;SERVICE=port;UID=userID;PWD=password;";
 
-informix.open(cn,function(err,conn){
+
+informix.open(connStr, function (err, conn) {
   conn.querySync("create table hits (col1 varchar(40), col2 int)");
   conn.querySync("insert into hits values ('something', 42)");
   conn.querySync("insert into hits values ('für', 43)");
@@ -579,17 +572,18 @@ informix.open(cn,function(err,conn){
       return conn.closeSync();
     }
     stmt.execute(function (err, result) {
-      if( err ) console.log(err);
-      result.fetchAll({fetchMode:4}, function (err, data, colcount) {
-          if(err) { console.log(err); }
-          else {
-            console.log("Data = ", data);
-            console.log("No of columns = ", colcount);
-          }
-          result.closeSync();
-          conn.querySync("drop table hits");
-          //Close the connection
-          conn.close(function(err){console.log("Connection Closed.");});
+      if (err) console.log(err);
+      result.fetchAll({ fetchMode: 4 }, function (err, data, colcount) {
+        if (err) { console.log(err); }
+        else {
+          console.log("Data = ", data);
+          // TODO: Colcount is not supported yet.
+          //console.log("No of columns = ", colcount);
+        }
+        result.closeSync();
+        conn.querySync("drop table hits");
+        //Close the connection
+        conn.close(function (err) { console.log("Connection Closed."); });
       });
     });
   });
@@ -604,9 +598,9 @@ Fetch all rows from ODBCResult object Synchronously for the executed statement.
 
 ```javascript
 var informix = require("informixdb")
-  , cn = "SERVER=dbServerName;DATABASE=dbName;HOST=hostName;SERVICE=port;UID=userID;PWD=password;";
+  , connStr = "SERVER=dbServerName;DATABASE=dbName;HOST=hostName;SERVICE=port;UID=userID;PWD=password;";
 
-informix.open(cn,function(err,conn){
+informix.open(connStr, function (err, conn) {
   conn.querySync("create table hits (col1 varchar(40), col2 int)");
   conn.querySync("insert into hits values ('something', 42)");
   conn.querySync("insert into hits values ('für', 43)");
@@ -639,9 +633,9 @@ Commit a transaction
 
 ```javascript
 var informix = require("informixdb")
-  , cn = "SERVER=dbServerName;DATABASE=dbName;HOST=hostName;SERVICE=port;UID=userID;PWD=password;";
+  , connStr = "SERVER=dbServerName;DATABASE=dbName;HOST=hostName;SERVICE=port;UID=userID;PWD=password;";
 
-informix.open(cn, function(err,conn) {
+informix.open(connStr, function (err, conn) {
 
   conn.beginTransaction(function (err) {
     if (err) {
@@ -650,7 +644,7 @@ informix.open(cn, function(err,conn) {
       return conn.closeSync();
     }
 
-    var result = conn.querySync("insert into customer (customerCode) values ('stevedave')");
+    var result = conn.querySync("insert into testtable (id, name) values (10, 'Informix')");
 
     conn.commitTransaction(function (err) {
       if (err) {
@@ -659,10 +653,10 @@ informix.open(cn, function(err,conn) {
         return conn.closeSync();
       }
 
-    console.log(conn.querySync("select * from customer where customerCode = 'stevedave'"));
+      console.log(conn.querySync("select * from testtable where name = 'Informix'"));
 
-     //Close the connection
-     conn.closeSync();
+      //Close the connection
+      conn.closeSync();
     });
   });
 });
@@ -674,9 +668,9 @@ Synchronously commit a transaction
 
 ```javascript
 var informix = require("informixdb")
-  , cn = "SERVER=dbServerName;DATABASE=dbName;HOST=hostName;SERVICE=port;UID=userID;PWD=password;";
+  , connStr = "SERVER=dbServerName;DATABASE=dbName;HOST=hostName;SERVICE=port;UID=userID;PWD=password;";
 
-informix.open(cn, function(err,conn) {
+informix.open(connStr, function (err, conn) {
 
   conn.beginTransaction(function (err) {
     if (err) {
@@ -685,13 +679,13 @@ informix.open(cn, function(err,conn) {
       return conn.closeSync();
     }
 
-    var result = conn.querySync("insert into customer (customerCode) values ('stevedave')");
+    var result = conn.querySync("insert into testtable (id, name) values (11, 'Informix')");
 
-    conn.commitTransactionSync();
+    conn.commitTransactionSync(); // TODO: driver not capable error.
 
-    console.log(conn.querySync("select * from customer where customerCode = 'stevedave'"));
+    console.log(conn.querySync("select * from testtable where name = 'Informix'"));
 
-     //Close the connection
+    //Close the connection
     conn.closeSync();
   });
 });
@@ -705,9 +699,9 @@ Rollback a transaction
 
 ```javascript
 var informix = require("informixdb")
-  , cn = "SERVER=dbServerName;DATABASE=dbName;HOST=hostName;SERVICE=port;UID=userID;PWD=password;";
+  , connStr = "SERVER=dbServerName;DATABASE=dbName;HOST=hostName;SERVICE=port;UID=userID;PWD=password;";
 
-informix.open(cn, function(err,conn) {
+informix.open(connStr, function (err, conn) {
 
   conn.beginTransaction(function (err) {
     if (err) {
@@ -716,8 +710,9 @@ informix.open(cn, function(err,conn) {
       return conn.closeSync();
     }
 
-    var result = conn.querySync("insert into customer (customerCode) values ('stevedave')");
+    var result = conn.querySync("insert into testtable (id, name) values (12, 'Informix')");
 
+    // TODO: Check this functionality.
     conn.rollbackTransaction(function (err) {
       if (err) {
         //error during rollback
@@ -725,10 +720,10 @@ informix.open(cn, function(err,conn) {
         return conn.closeSync();
       }
 
-    console.log(conn.querySync("select * from customer where customerCode = 'stevedave'"));
+      console.log(conn.querySync("select * from testtable where name = 'Informix'"));
 
-     //Close the connection
-     conn.closeSync();
+      //Close the connection
+      conn.closeSync();
     });
   });
 });
@@ -740,9 +735,9 @@ Synchronously rollback a transaction
 
 ```javascript
 var informix = require("informixdb")
-  , cn = "SERVER=dbServerName;DATABASE=dbName;HOST=hostName;SERVICE=port;UID=userID;PWD=password;";
+  , connStr = "SERVER=dbServerName;DATABASE=dbName;HOST=hostName;SERVICE=port;UID=userID;PWD=password;";
 
-informix.open(cn, function(err,conn) {
+informix.open(connStr, function (err, conn) {
 
   conn.beginTransaction(function (err) {
     if (err) {
@@ -751,80 +746,38 @@ informix.open(cn, function(err,conn) {
       return conn.closeSync();
     }
 
-    var result = conn.querySync("insert into customer (customerCode) values ('stevedave')");
+    var result = conn.querySync("insert into testtable (id, name) values (13, 'Informix')");
 
+    // TODO: Driver not capable.
     conn.rollbackTransactionSync();
 
-    console.log(conn.querySync("select * from customer where customerCode = 'stevedave'"));
+    console.log(conn.querySync("select * from testtable where name = 'Informix'"));
 
-     //Close the connection
+    //Close the connection
     conn.closeSync();
   });
 });
 ```
 
-### <a name="setIsolationLevelApi"></a> 27) .setIsolationLevel(isolationLevel)
-
-Synchronously sets the default isolation level passed as argument. It is only applicable when the default isolation level is used. It will have no effect if the application has specifically set the isolation level for a transaction.
-
-* **isolationLevel:** An integer representing the isolation level to be set. Its value must be only - 1|2|4|8|32. For details check this [doc](https://www.ibm.com/support/knowledgecenter/en/SSEPGG_11.1.0/com.ibm.db2.luw.apdv.cli.doc/doc/r0008832.html).
-
-```javascript
-var informix = require("informixdb")
-  , cn = "SERVER=dbServerName;DATABASE=dbName;HOST=hostName;SERVICE=port;UID=userID;PWD=password;";
-
-informix.open(cn, function(err,conn) {
-  conn.setIsolationLevel(2);  // SQL_TXN_READ_COMMITTED
-  conn.setIsolationLevel(4); // SQL_TXN_REPEATABLE_READ
-  conn.querySync("create table mytab1 (c1 int, c2 varchar(10))");
-});
-```
-
-### <a name="getColumnNamesSyncApi"></a> 28) .getColumnNamesSync()
+### <a name="getColumnNamesSyncApi"></a> 27) .getColumnNamesSync()
 
 Synchronously retrieve the name of columns returned by the resulset. It
  operates on ODBCResult object.
-```javascript
-  conn.querySync("insert into mytab1 values ( 5, 'abc')");
-  conn.prepare("select * from mytab1", function (err, stmt) {
-    stmt.execute(function(err, result) {
-      console.log("Column Names = ", result.getColumnNamesSync());
-      result.closeSync(); conn.closeSync(); }); });
-```
 
-### <a name="getColumnMetadataSyncApi"></a> 29) .getColumnMetadataSync()
-
-Synchronously retrieve the metadata about columns returned by the resulset. It
- operates on ODBCResult object.
 ```javascript
-  conn.querySync("insert into mytab1 values ( 5, 'abc')");
-  conn.prepare("select * from mytab1", function (err, stmt) {
-    stmt.execute(function(err, result) {
+informix.open(connStr, function (err, conn) {
+
+  conn.querySync("insert into testtable values ( 5, 'abc')");
+  conn.prepare("select * from testtable", function (err, stmt) {
+    stmt.execute(function (err, result) {
       console.log("Column Names = ", result.getColumnNamesSync());
-      console.log("Column Meta Data = ", result.getColumnMetadataSync());
-      console.log("Fetched Data = ", result.fetchAllSync() );
-      result.closeSync();
-      conn.closeSync();
+      result.closeSync(); conn.closeSync();
     });
   });
+});
 ```
 
-### <a name="getSQLErrorSyncApi"></a> 30) .getSQLErrorSync()
-
-Synchronously retrieve the sqlerror message and codes for last instruction executed on a statement handle using SQLGetDiagRec ODBC API. It operates on ODBCResult object.
-```javascript
-  conn.querySync("insert into mytab1 values ( 5, 'abc')");
-  conn.prepare("select * from mytab1", function (err, stmt) {
-    stmt.execute(function(err, result) {
-      console.log("Fetched Data = ", result.fetchAllSync() );
-      console.log("SQLError = ", result.getSQLErrorSync());
-      result.closeSync();
-      conn.closeSync();
-    });
-  });
-```
-
-### <a name="enableDebugLogs"></a> 31) .debug(value)
+### <a name="enableDebugLogs"></a> 28) .debug(value)
 
 Enable console logs.
 
@@ -832,26 +785,25 @@ Enable console logs.
 
 ```javascript
 var informix = require("informixdb")
-  , cn = "SERVER=dbServerName;DATABASE=dbName;HOST=hostName;SERVICE=port;UID=userID;PWD=password;";
+  , connStr = "SERVER=dbServerName;DATABASE=dbName;HOST=hostName;SERVICE=port;UID=userID;PWD=password;";
 
 informix.debug(true);  // **==> ENABLE CONSOLE LOGS. <==**
 
-[informix.open](#openApi)(cn, function (err, connection) {
-    if (err)
-    {
-        console.log(err);
-        return;
-    }
-    connection.query("select 1 from sysibm.sysdummy1", function (err1, rows) {
-        if (err1) console.log(err1);
-        else console.log(rows);
+informix.open(connStr, function (err, connection) {
+  if (err) {
+    console.log(err);
+    return;
+  }
+  connection.query("select * from testtable", function (err1, rows) {
+    if (err1) console.log(err1);
+    else console.log(rows);
 
-        informix.debug(false);  // Disable console logs.
+    informix.debug(false);  // Disable console logs.
 
-        connection.close(function(err2) {
-            if(err2) console.log(err2);
-        });
+    connection.close(function (err2) {
+      if (err2) console.log(err2);
     });
+  });
 });
 ```
 
@@ -870,21 +822,21 @@ To create a database (dbName) through Node.js application.
 ```javascript
 var informix = require("informixdb");
 // Connection string without "DATABASE" keyword and value.
-var cn = "SERVER=dbServerName;HOST=hostName;SERVICE=port;UID=userID;PWD=password;";
+var connStr = "SERVER=dbServerName;HOST=hostName;SERVICE=port;UID=userID;PWD=password;";
 
 var DB_NAME = "TESTDB";
 
-var createDB = informix.createDbSync(DB_NAME, cn);
+var createDB = informix.createDbSync(DB_NAME, connStr);
 
-if(createDB) {
+if (createDB) {
   console.log("Database created successfully.");
   // Connection string with newly created "DATABASE" name.
-	var conStr = cn + ";" + "DATABASE=" + DB_NAME;
+  var conStr = connStr + ";" + "DATABASE=" + DB_NAME;
 
-	informix.open(conStr, function(err, conn) {
-		if(err) console.log(err);
-		else console.log("Database connection opened.");
-	});
+  informix.open(conStr, function (err, conn) {
+    if (err) console.log(err);
+    else console.log("Database connection opened.");
+  });
 }
 ```
 
@@ -898,13 +850,13 @@ To drop a database (dbName) through node.js application.
 ```javascript
 var informix = require("informixdb");
 // Connection string without "DATABASE" keyword and value.
-var cn = "SERVER=dbServerName;HOST=hostName;SERVICE=port;UID=userID;PWD=password;";
+var connStr = "SERVER=dbServerName;HOST=hostName;SERVICE=port;UID=userID;PWD=password;";
 
 var DB_NAME = "TESTDB";
 
-var dropDB = informix.dropDbSync(DB_NAME, cn);
+var dropDB = informix.dropDbSync(DB_NAME, connStr);
 
-if(dropDB) {
+if (dropDB) {
   console.log("Database dropped successfully.");
 }
 ```
@@ -935,19 +887,19 @@ Get a `Database` instance which is already connected to `connectionString`
 * **callback** - `callback (err, db)`
 
 ```javascript
-var Pool = require("informixdb").Pool
-	, pool = new Pool()
-    , cn = "SERVER=dbServerName;DATABASE=dbName;HOST=hostName;SERVICE=port;UID=userID;PWD=password;";
+var Pool = require("./informixdb").Pool
+  , pool = new Pool()
+  , connStr = "SERVER=dbServerName;DATABASE=dbName;HOST=hostName;SERVICE=port;UID=userID;PWD=password;";
 
-pool.open(cn, function (err, db) {
-	if (err) {
-		return console.log(err);
-	}
+pool.open(connStr, function (err, db) {
+  if (err) {
+    return console.log(err);
+  }
 
-	//db is now an open database connection and can be used like normal
-	//if we run some queries with db.query(...) and then call db.close();
-	//a connection to `cn` will be re-opened silently behind the scene
-	//and will be ready the next time we do `pool.open(cn)`
+  //db is now an open database connection and can be used like normal
+  //if we run some queries with db.query(...) and then call db.close();
+  //a connection to `connStr` will be re-opened silently behind the scene
+  //and will be ready the next time we do `pool.open(connStr)`
 });
 ```
 
@@ -959,20 +911,20 @@ Close all connections in the `Pool` instance
 
 ```javascript
 var Pool = require("informixdb").Pool
-	, pool = new Pool()
-    , cn = "SERVER=dbServerName;DATABASE=dbName;HOST=hostName;SERVICE=port;UID=userID;PWD=password;";
+	, pool = new Pool()4
+  , connStr = "SERVER=dbServerName;DATABASE=dbName;HOST=hostName;SERVICE=port;UID=userID;PWD=password;";
 
-pool.open(cn, function (err, db) {
-	if (err) {
-		return console.log(err);
-	}
+pool.open(connStr, function (err, db) {
+  if (err) {
+    return console.log(err);
+  }
 
-	//db is now an open database connection and can be used like normal
-	//but all we will do now is close the whole pool
+  //db is now an open database connection and can be used like normal
+  //but all we will do now is close the whole pool
 
-	pool.close(function () {
-		console.log("all connections in the pool are closed");
-	});
+  pool.close(function () {
+    console.log("all connections in the pool are closed");
+  });
 });
 ```
 
