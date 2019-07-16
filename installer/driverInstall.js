@@ -135,19 +135,16 @@ function InstallNodeInformixDB() {
 
                 //Windows node binary names should update here.
                 var ODBC_BINDINGS = 'build\/Release\/odbc_bindings.node';
-                var ODBC_BINDINGS_V4 = 'build\/Release\/odbc_bindings.node.4.9.1';
-                var ODBC_BINDINGS_V6 = 'build\/Release\/odbc_bindings.node.6.17.1';
-                var ODBC_BINDINGS_V7 = 'build\/Release\/odbc_bindings.node.7.10.1';
                 var ODBC_BINDINGS_V8 = 'build\/Release\/odbc_bindings.node.8.16.0';
                 var ODBC_BINDINGS_V9 = 'build\/Release\/odbc_bindings.node.9.11.2';
-                var ODBC_BINDINGS_V10 = 'build\/Release\/odbc_bindings.node.10.15.3';
+                var ODBC_BINDINGS_V10 = 'build\/Release\/odbc_bindings.node.10.16.0';
 
                 // Windows add-on binary for node.js v0.10.x and v0.12.7 has been discontinued.
-                if (Number(process.version.match(/^v(\d+\.\d+)/)[1]) < 4.0) {
+                if (Number(process.version.match(/^v(\d+\.\d+)/)[1]) < 8.0) {
                     console.log('\nERROR: Did not find precompiled add-on binary for node.js version ' + process.version + ':' +
                         '\ninformixdb does not provide precompiled add-on binary for node.js version ' + process.version +
-                        ' on Windows platform. Visual Studio is required to compile informixdb with node.js versions < 4.X. ' +
-                        'Otherwise please use the node.js version >= 4.X\n');
+                        ' on Windows platform. Visual Studio is required to compile informixdb with node.js versions < 8.X. ' +
+                        'Otherwise please use the node.js version >= 8.X\n');
                     process.exit(1);
                 }
 
@@ -155,10 +152,7 @@ function InstallNodeInformixDB() {
                  * odbcBindingsNode will consist of the node binary-
                  * file name according to the node version in the system.
                  */
-                var odbcBindingsNode = (Number(process.version.match(/^v(\d+\.\d+)/)[1]) < 5.0) && ODBC_BINDINGS_V4 ||
-                    (Number(process.version.match(/^v(\d+\.\d+)/)[1]) < 7.0) && ODBC_BINDINGS_V6 ||
-                    (Number(process.version.match(/^v(\d+\.\d+)/)[1]) < 8.0) && ODBC_BINDINGS_V7 ||
-                    (Number(process.version.match(/^v(\d+\.\d+)/)[1]) < 9.0) && ODBC_BINDINGS_V8 ||
+                var odbcBindingsNode = (Number(process.version.match(/^v(\d+\.\d+)/)[1]) < 9.0) && ODBC_BINDINGS_V8 ||
                     (Number(process.version.match(/^v(\d+\.\d+)/)[1]) < 10.0) && ODBC_BINDINGS_V9 ||
                     (Number(process.version.match(/^v(\d+\.\d+)/)[1]) < 11.0) && ODBC_BINDINGS_V10 || ODBC_BINDINGS;
 
