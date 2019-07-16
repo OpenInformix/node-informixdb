@@ -53,7 +53,7 @@
     "raspberry",
     "pi"
   ],
-  "author": "HCL Technologies",
+  "author": "Rohit Pandey",
   "license": "MIT",
   "devDependencies": {
     "async": "^2.6.1",

@@ -145,12 +145,10 @@ DCO 1.1 Signed-off-by: Random J Developer <random@developer.org>
 
 ## License
 
-Copyright (c) 2017 OpenInformix (HCL Technologies)
-
+Copyright (c) 2017, 2019 Rohit Pandey rht.uimworld@gmail.com
+Copyright (c) 2017, 2019 OpenInformix (HCL Technologies)
 Copyright (c) 2014 IBM Corporation
-
 Copyright (c) 2013 Dan VerWeire dverweire@gmail.com
-
 Copyright (c) 2010 Lee Smith notwink@gmail.com
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of 
