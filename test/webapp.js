@@ -1,6 +1,6 @@
-var ifxnjs = require("../")
+var informixdb = require("../")
     , common = require("./common")
-    , pool = new ifxnjs.Pool()
+    , pool = new informixdb.Pool()
     , app = require('express')()
     , cn = common.connectionString
     , requestNo = 0
@@ -8,7 +8,7 @@ var ifxnjs = require("../")
     , img2 = "data/panda.jpg"
     ;
 
-//ifxnjs.debug(true);
+//informixdb.debug(true);
 pool.init(5, cn);
 function getConnection() {
     var conn;

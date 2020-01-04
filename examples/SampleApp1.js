@@ -1,6 +1,6 @@
 
 
-var dbobj = require('ifxnjs');
+var dbobj = require('informixdb');
 
 function DirExec(conn, ErrIgn, sql)
 {
@@ -50,7 +50,7 @@ var MyAsynchronousTask = function (err, conn)
     conn.close();
 }
 
-function ifxnjs_Open(ConStr)
+function informixdb_Open(ConStr)
 {
     console.log();
     console.log(" --- MyAsynchronousTask Starting.....");
@@ -60,10 +60,10 @@ function ifxnjs_Open(ConStr)
     console.log(" --- You are on Asynchronous call! :)");
 }
 
-function ifxnjs_OpenSync(ConStr)
+function informixdb_OpenSync(ConStr)
 {
     console.log();
-    console.log(" --- Executing ifxnjs.openSync() ....");
+    console.log(" --- Executing informixdb.openSync() ....");
     var conn;
     try
     {
@@ -86,7 +86,7 @@ function ifxnjs_OpenSync(ConStr)
     {
         console.log(e);
     }
-    console.log(" --- End ifxnjs.openSync()");
+    console.log(" --- End informixdb.openSync()");
 }
 
 function main_func()
@@ -105,10 +105,10 @@ function main_func()
     }
 
     //Synchronous Execution
-    ifxnjs_OpenSync(ConnectionString);
+    informixdb_OpenSync(ConnectionString);
 
     //Asynchronous Execution
-    ifxnjs_Open(ConnectionString);
+    informixdb_Open(ConnectionString);
 }
 
 main_func();

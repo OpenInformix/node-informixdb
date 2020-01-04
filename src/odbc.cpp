@@ -1,7 +1,6 @@
 /*
-  Copyright (c) 2017, 2019 Rohit Pandey rht.uimworld@gmail.com
-  Copyright (c) 2017, 2019 OpenInformix (HCL Technologies)
-  Copyright (c) 2014, IBM Corporation
+  Copyright (c) 2017, 2020 OpenInformix (HCL Technologies).
+  Copyright (c) 2014, IBM Corporation.
   Copyright (c) 2013, Dan VerWeire <dverweire@gmail.com>
   Copyright (c) 2010, Lee Smith <notwink@gmail.com>
 
@@ -362,7 +361,7 @@ Handle<Value> ODBC::GetColumnValue( SQLHSTMT hStmt, Column column,
   int ret; 
   Local<String> str;
   SQLSMALLINT ctype = SQL_C_TCHAR;
-  char * errmsg = (char *) "[node-ifxnjs] Error in ODBC::GetColumnValue";
+  char * errmsg = (char *) "[node-informixdb] Error in ODBC::GetColumnValue";
 #ifdef UNICODE
   int terCharLen = 2;
 #else
@@ -1091,7 +1090,7 @@ Handle<Value> ODBC::CallbackSQLError (SQLSMALLINT handleType,
   Local<Value> objError = CallbackSQLError(
     handleType,
     handle,
-    (char *) "[node-ifxnjs] SQL_ERROR",
+    (char *) "[node-informixdb] SQL_ERROR",
     cb);
   return scope.Escape(objError);
 }
@@ -1125,7 +1124,7 @@ Local<Value> ODBC::GetSQLError (SQLSMALLINT handleType, SQLHANDLE handle) {
   return scope.Escape(GetSQLError(
     handleType,
     handle,
-    (char *) "[node-ifxnjs] SQL_ERROR"));
+    (char *) "[node-informixdb] SQL_ERROR"));
 }
 
 Local<Value> ODBC::GetSQLError (SQLSMALLINT handleType, SQLHANDLE handle, char* message) {
@@ -1231,7 +1230,7 @@ Local<Array> ODBC::GetAllRecordsSync (SQLHENV hENV,
       objError = ODBC::GetSQLError(
         SQL_HANDLE_STMT, 
         hSTMT,
-        (char *) "[node-ifxnjs] Error in ODBC::GetAllRecordsSync"
+        (char *) "[node-informixdb] Error in ODBC::GetAllRecordsSync"
       );
       
       break;

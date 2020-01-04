@@ -1,9 +1,9 @@
 var common = require("./common")
-    , ifxnjs = require("../")
+    , informixdb = require("../")
     , assert = require("assert")
     , cn = common.connectionString;
 
-    ifxnjs.open(cn).then(function(conn) {
+    informixdb.open(cn).then(function(conn) {
       //conn.querySync("drop table mytab1");
       return conn;
     }, function(err) {

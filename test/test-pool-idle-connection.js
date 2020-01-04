@@ -1,7 +1,7 @@
 // test file to test idle connection is getting dropped or not.
 
-var ifxnjs = require("../")
-    , pool = new ifxnjs.Pool()
+var informixdb = require("../")
+    , pool = new informixdb.Pool()
     , assert = require("assert")
     , common = require("./common.js")
     , cn = common.connectionString

@@ -1,7 +1,6 @@
 /*
-  Copyright (c) 2017, 2019 Rohit Pandey rht.uimworld@gmail.com
-  Copyright (c) 2017, 2019 OpenInformix (HCL Technologies)
-  Copyright (c) 2014, IBM Corporation
+  Copyright (c) 2017, 2020 OpenInformix (HCL Technologies).
+  Copyright (c) 2014, IBM Corporation.
   Copyright (c) 2013, Dan VerWeire <dverweire@gmail.com>
   Copyright (c) 2010, Lee Smith <notwink@gmail.com>
 
@@ -279,7 +278,7 @@ NAN_METHOD(ODBCStatement::ExecuteSync) {
     Nan::ThrowError(ODBC::GetSQLError(
       SQL_HANDLE_STMT,
       stmt->m_hSTMT,
-      (char *) "[node-ifxnjs] Error in ODBCStatement::ExecuteSync"
+      (char *) "[node-informixdb] Error in ODBCStatement::ExecuteSync"
     ));
     
     info.GetReturnValue().Set(Nan::Null());
@@ -424,7 +423,7 @@ NAN_METHOD(ODBCStatement::ExecuteNonQuerySync) {
     Nan::ThrowError(ODBC::GetSQLError(
       SQL_HANDLE_STMT,
       stmt->m_hSTMT,
-      (char *) "[node-ifxnjs] Error in ODBCStatement::ExecuteSync"
+      (char *) "[node-informixdb] Error in ODBCStatement::ExecuteSync"
     ));
     
     info.GetReturnValue().Set(Nan::Null());
@@ -588,7 +587,7 @@ NAN_METHOD(ODBCStatement::ExecuteDirectSync) {
     Nan::ThrowError(ODBC::GetSQLError(
       SQL_HANDLE_STMT,
       stmt->m_hSTMT,
-      (char *) "[node-ifxnjs] Error in ODBCStatement::ExecuteDirectSync"
+      (char *) "[node-informixdb] Error in ODBCStatement::ExecuteDirectSync"
     ));
     
     info.GetReturnValue().Set(Nan::Null());
@@ -653,7 +652,7 @@ NAN_METHOD(ODBCStatement::PrepareSync) {
     Nan::ThrowError(ODBC::GetSQLError(
       SQL_HANDLE_STMT,
       stmt->m_hSTMT,
-      (char *) "[node-ifxnjs] Error in ODBCStatement::PrepareSync"
+      (char *) "[node-informixdb] Error in ODBCStatement::PrepareSync"
     ));
 
     info.GetReturnValue().Set(Nan::False());
@@ -817,7 +816,7 @@ NAN_METHOD(ODBCStatement::BindSync)
     Nan::ThrowError(ODBC::GetSQLError(
       SQL_HANDLE_STMT,
       stmt->m_hSTMT,
-      (char *) "[node-ifxnjs] Error in ODBCStatement::BindSync"
+      (char *) "[node-informixdb] Error in ODBCStatement::BindSync"
     ));
     
     info.GetReturnValue().Set(Nan::False());

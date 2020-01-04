@@ -1,5 +1,5 @@
 var common = require("./common")
-    , ifxnjs = require("../")
+    , informixdb = require("../")
     , assert = require("assert")
     , fs = require('fs')
     , cn = common.connectionString
@@ -9,7 +9,7 @@ var common = require("./common")
     , outputfile2 = 'desc2.txt'
     ;
 
-ifxnjs.open(cn, function (err,conn) 
+informixdb.open(cn, function (err,conn) 
 {
   if (err) 
   {

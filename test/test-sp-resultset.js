@@ -1,5 +1,5 @@
 var common = require("./common")
-  , ifxnjs = require("../")
+  , informixdb = require("../")
   , assert = require("assert")
   , schema = common.connectionObject.CURRENTSCHEMA;
 
@@ -9,7 +9,7 @@ var proc3 = "create procedure " + schema + ".proc2 ( v1 int, v2 varchar(30)) ret
 
 var query = "{call proc2(?, ?)}";
 var result;
-ifxnjs.open(common.connectionString, {fetchMode : 3}, function (err, conn) {
+informixdb.open(common.connectionString, {fetchMode : 3}, function (err, conn) {
     if(err) {
       console.log(err);
       process.exit(-1);

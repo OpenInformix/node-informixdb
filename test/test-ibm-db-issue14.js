@@ -2,7 +2,7 @@
 /*require the informixdb module*/
 var common = require("./common")
   , assert = require("assert")
-  , ifxnjs = require("../");
+  , informixdb = require("../");
 
 var testTable = 'BIGINTTEST';
 var testValues = [10205152031467301, 10205152031467303];
@@ -12,7 +12,7 @@ var testValues = [10205152031467301, 10205152031467303];
   param 1: The DSN string which has the details of database name to connect to, user id, password, hostname, portnumber 
   param 2: The Callback function to execute when connection attempt to the specified database is completed
 */
-ifxnjs.open(common.connectionString, function(err, conn)
+informixdb.open(common.connectionString, function(err, conn)
 {
         if(err) {
           	console.error("error: ", err.message);

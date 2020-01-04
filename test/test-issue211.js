@@ -1,4 +1,4 @@
-var ifxnjs = require("../")
+var informixdb = require("../")
     , common = require("./common")
     , assert = require("assert")
     , cn = common.connectionString;
@@ -16,7 +16,7 @@ stmt2.sql = 'SELECT COUNT(C1) FROM FINAL TABLE(UPDATE T1 SET C2=?, C3=? WHERE C1
 stmt2.params = ['Jane', 'Joan'];
 stmt2.noResults = false;
 
-ifxnjs.open(cn, function(err, conn1) {
+informixdb.open(cn, function(err, conn1) {
   if (err) console.log(err);
   assert.equal(err, null);
 
@@ -30,7 +30,7 @@ ifxnjs.open(cn, function(err, conn1) {
   stmt0.sql = "INSERT INTO T1 VALUES (1, 'ABCDEF', 'GHIJK')";
   conn1.querySync(stmt0.sql);
   
-  ifxnjs.open(cn, function(err, conn2) {
+  informixdb.open(cn, function(err, conn2) {
       if (err) return console.log(err);
 
       conn1.beginTransaction(function(err) {

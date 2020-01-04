@@ -2,13 +2,13 @@
 // When SP is called using conn.query() assynchronously.
 
 var common = require("./common")
-  , ifxnjs = require("../")
+  , informixdb = require("../")
   , assert = require("assert")
   , cn = common.connectionString
   , schema = common.connectionObject.CURRENTSCHEMA;
 
 if(schema == undefined) schema = "NEWTON";
-ifxnjs.open(cn, function (err, conn)
+informixdb.open(cn, function (err, conn)
 {
     var query = "{CALL proc1(?, ?, ?)}";
     if(err) console.log(err);

@@ -1,13 +1,13 @@
 var common = require("./common")
-	, ifxnjs = require("../")
-	, pool = new ifxnjs.Pool()
+	, informixdb = require("../")
+	, pool = new informixdb.Pool()
 	, connectionString = common.connectionString
     , assert = require("assert")
 	, connections = []
 	, connectCount = 2;
 
 var startTime1, startTime2, totalTime1, totalTime2, dropTable = 0;
-var elapsedTime = ifxnjs.getElapsedTime;
+var elapsedTime = informixdb.getElapsedTime;
 var ret = pool.init(connectCount, connectionString); 
 if(typeof ret === 'object') assert.equal(ret.message, undefined);
 
@@ -31,7 +31,7 @@ pool.open(connectionString, function( err, conn) {
     conn.close(function(err){});
 });
 console.log(elapsedTime(), "After insert.");
-//ifxnjs.debug(true);
+//informixdb.debug(true);
 var q1time, q2time;
 console.log(elapsedTime(), "Opening connection #1");
 pool.open(connectionString, function (err, connection) {
@@ -89,7 +89,7 @@ var testLongTime = function(conn) {
 
             // Clean up
             conn.querySync("drop table mtab1");
-            //ifxnjs.debug(false);
+            //informixdb.debug(false);
             pool.close();
         });
     });

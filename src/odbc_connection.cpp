@@ -1,7 +1,6 @@
 /*
-  Copyright (c) 2017, 2019 Rohit Pandey rht.uimworld@gmail.com
-  Copyright (c) 2017, 2019 OpenInformix (HCL Technologies)
-  Copyright (c) 2014, IBM Corporation
+  Copyright (c) 2017, 2020 OpenInformix (HCL Technologies).
+  Copyright (c) 2014, IBM Corporation.
   Copyright (c) 2013, Dan VerWeire <dverweire@gmail.com>
   Copyright (c) 2010, Lee Smith <notwink@gmail.com>
 
@@ -1216,7 +1215,7 @@ void ODBCConnection::UV_AfterQuery(uv_work_t* req, int status) {
 
     // Check now to see if there was an error (as there may be further result sets)
     if (data->result == SQL_ERROR) {
-      info[0] = ODBC::GetSQLError(SQL_HANDLE_STMT, data->hSTMT, (char *) "[node-ifxnjs] SQL_ERROR");
+      info[0] = ODBC::GetSQLError(SQL_HANDLE_STMT, data->hSTMT, (char *) "[node-informixdb] SQL_ERROR");
     } else {
       info[0] = Nan::Null();
     }

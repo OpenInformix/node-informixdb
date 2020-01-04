@@ -1,14 +1,14 @@
 // Test case to verify result of OUT and INOUT Parameters in a Strored Procedure.
 
 var common = require("./common")
-  , ifxnjs = require("../")
+  , informixdb = require("../")
   , assert = require("assert")
   , cn = common.connectionString
   , schema = common.connectionObject.CURRENTSCHEMA;
 
 if(schema == undefined) schema = "NEWTON";
 var query = "{call proc1(?, ?, ?)}";
-ifxnjs.open(cn, function (err, conn)
+informixdb.open(cn, function (err, conn)
 {
     if(err) console.log(err);
     assert.equal(err, null);

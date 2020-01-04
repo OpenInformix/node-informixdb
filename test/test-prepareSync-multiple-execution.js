@@ -1,12 +1,12 @@
 var common = require("./common")
-  , ifxnjs = require("../")
+  , informixdb = require("../")
   , assert = require("assert")
   ;
 
 var count = 0;
 var iterations = 10;
 
-var conn = ifxnjs.openSync(common.connectionString);
+var conn = informixdb.openSync(common.connectionString);
   
 common.dropTables(conn, function () {
   common.createTables(conn, function (err, data) {

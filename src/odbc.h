@@ -1,7 +1,6 @@
 /*
-  Copyright (c) 2017, 2019 Rohit Pandey rht.uimworld@gmail.com
-  Copyright (c) 2017, 2019 OpenInformix (HCL Technologies)
-  Copyright (c) 2014, IBM Corporation
+  Copyright (c) 2017, 2020 OpenInformix (HCL Technologies).
+  Copyright (c) 2014, IBM Corporation.
   Copyright (c) 2013, Dan VerWeire <dverweire@gmail.com>
   Copyright (c) 2010, Lee Smith <notwink@gmail.com>
 
@@ -83,7 +82,7 @@ using namespace node;
 #define MEMCHECK( buffer )                                           \
   if (!buffer) {                                                     \
     Nan::LowMemoryNotification();                                    \
-    Nan::ThrowError( "Could not allocate enough memory in ifxnjs "   \
+    Nan::ThrowError( "Could not allocate enough memory in informixdb "   \
                      "file " __FILE__ ":" LINENO(__LINE__) ".");     \
     return;                                                          \
   }
