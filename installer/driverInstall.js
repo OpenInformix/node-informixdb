@@ -157,6 +157,7 @@ function InstallNodeInformixDB() {
                 var ODBC_BINDINGS_V8 = 'build\/Release\/odbc_bindings.node.8.16.0';
                 var ODBC_BINDINGS_V9 = 'build\/Release\/odbc_bindings.node.9.11.2';
                 var ODBC_BINDINGS_V10 = 'build\/Release\/odbc_bindings.node.10.16.0';
+                var ODBC_BINDINGS_V11 = 'build\/Release\/odbc_bindings.node.11.15.0';
 
                 // Windows add-on binary for node.js v0.10.x and v0.12.7 has been discontinued.
                 if (Number(process.version.match(/^v(\d+\.\d+)/)[1]) < 8.0) {
@@ -173,7 +174,8 @@ function InstallNodeInformixDB() {
                  */
                 var odbcBindingsNode = (Number(process.version.match(/^v(\d+\.\d+)/)[1]) < 9.0) && ODBC_BINDINGS_V8 ||
                     (Number(process.version.match(/^v(\d+\.\d+)/)[1]) < 10.0) && ODBC_BINDINGS_V9 ||
-                    (Number(process.version.match(/^v(\d+\.\d+)/)[1]) < 11.0) && ODBC_BINDINGS_V10 || ODBC_BINDINGS;
+                    (Number(process.version.match(/^v(\d+\.\d+)/)[1]) < 11.0) && ODBC_BINDINGS_V10 || 
+                    (Number(process.version.match(/^v(\d+\.\d+)/)[1]) < 12.0) && ODBC_BINDINGS_V11 || ODBC_BINDINGS;
 
                 // Removing the "build" directory created by Auto Installation Process.
                 // "unzipper" will create a fresh "build" directory for extraction of "build.zip".
