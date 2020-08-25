@@ -40,6 +40,16 @@ using namespace node;
 #define FETCH_OBJECT 4
 #define SQL_DESTROY 9999
 
+#if (NODE_MAJOR_VERSION >= 10)
+#define ISOLATE v8::Isolate::GetCurrent()
+#define ISOLATECOMMA v8::Isolate::GetCurrent(),
+#define TOSTRING ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())
+#else
+#define ISOLATE 
+#define ISOLATECOMMA 
+#define TOSTRING ToString()
+#endif
+
 #ifdef UNICODE
 #define _T(c) L##c
 #else
@@ -114,14 +124,14 @@ class ODBC : public Nan::ObjectWrap {
     static uv_mutex_t g_odbcMutex;
     static uv_async_t g_async;
     
-    static void Init(v8::Handle<Object> exports);
+    static void Init(v8::Local<Object> exports);
     static Column* GetColumns(SQLHSTMT hStmt, short* colCount);
     static void FreeColumns(Column* columns, short* colCount);
-    static Handle<Value> GetColumnValue(SQLHSTMT hStmt, Column column, uint16_t* buffer, int bufferLength);
-    static Handle<Value> GetOutputParameter(Parameter prm);
+    static Local<Value> GetColumnValue(SQLHSTMT hStmt, Column column, uint16_t* buffer, int bufferLength);
+    static Local<Value> GetOutputParameter(Parameter prm);
     static Local<Object> GetRecordTuple (SQLHSTMT hStmt, Column* columns, short* colCount, uint16_t* buffer, int bufferLength);
     static Local<Value> GetRecordArray (SQLHSTMT hStmt, Column* columns, short* colCount, uint16_t* buffer, int bufferLength);
-    static Handle<Value> CallbackSQLError(SQLSMALLINT handleType, SQLHANDLE handle, Nan::Callback* cb);
+    static Local<Value> CallbackSQLError(SQLSMALLINT handleType, SQLHANDLE handle, Nan::Callback* cb);
     static Local<Value> CallbackSQLError (SQLSMALLINT handleType, SQLHANDLE handle, char* message, Nan::Callback* cb);
     static Local<Value> GetSQLError (SQLSMALLINT handleType, SQLHANDLE handle);
     static Local<Value> GetSQLError (SQLSMALLINT handleType, SQLHANDLE handle, char* message);
@@ -222,7 +232,7 @@ struct query_request {
 #define REQ_STR_ARG(I, VAR)                                             \
   if (info.Length() <= (I) || !info[I]->IsString())                     \
     return Nan::ThrowTypeError("Argument " #I " must be a string");       \
-  String::Utf8Value VAR(info[I]->ToString());
+  Nan::Utf8String VAR(info[I]);
 
 //Require String Argument; Save String as Wide String (UCS2)
 #define REQ_WSTR_ARG(I, VAR)                                             \
@@ -234,7 +244,7 @@ struct query_request {
 #define REQ_STRO_ARG(I, VAR)                                             \
   if (info.Length() <= (I) || !info[I]->IsString())                     \
     return Nan::ThrowTypeError("Argument " #I " must be a string");       \
-  Local<String> VAR(info[I]->ToString());
+  Local<String> VAR(info[I]->TOSTRING);
 
 //Require String or Null Argument; Save String as Utf8
 #define REQ_STR_OR_NULL_ARG(I, VAR)                                             \
@@ -254,7 +264,7 @@ struct query_request {
     Nan::ThrowTypeError("Argument " #I " must be a string or null");                \
     return;                                                         \
   }                                                                               \
-  Local<String> VAR(info[I]->ToString());
+  Local<String> VAR(info[I]->TOSTRING);
 
 #define REQ_FUN_ARG(I, VAR)                                             \
   if (info.Length() <= (I) || !info[I]->IsFunction())                   \
@@ -264,7 +274,7 @@ struct query_request {
 #define REQ_BOOL_ARG(I, VAR)                                            \
   if (info.Length() <= (I) || !info[I]->IsBoolean())                    \
     return Nan::ThrowTypeError("Argument " #I " must be a boolean");      \
-  Local<Boolean> VAR = (info[I]->ToBoolean());
+  Local<Boolean> VAR = Nan::To<v8::Boolean>(info[I]).ToLocalChecked();
   
 #define REQ_EXT_ARG(I, VAR)                                             \
   if (info.Length() <= (I) || !info[I]->IsExternal())                   \
@@ -276,7 +286,7 @@ struct query_request {
   if (info.Length() <= (I)) {                                           \
     VAR = (DEFAULT);                                                    \
   } else if (info[I]->IsInt32()) {                                      \
-    VAR = info[I]->Int32Value();                                        \
+    VAR = Nan::To<v8::Int32>(info[I]).ToLocalChecked()->Value();        \
   } else {                                                              \
     return Nan::ThrowTypeError("Argument " #I " must be an integer");     \
   }

@@ -34,7 +34,7 @@ using namespace node;
 
 Nan::Persistent<Function> ODBCStatement::constructor;
 
-void ODBCStatement::Init(v8::Handle<Object> exports) {
+void ODBCStatement::Init(v8::Local<Object> exports) {
   DEBUG_PRINTF("ODBCStatement::Init\n");
   Nan::HandleScope scope;
 
@@ -44,7 +44,7 @@ void ODBCStatement::Init(v8::Handle<Object> exports) {
   
   t->SetClassName(Nan::New("ODBCStatement").ToLocalChecked());
 
-  // Reserve space for one Handle<Value>
+  // Reserve space for one Local<Value>
   Local<ObjectTemplate> instance_template = t->InstanceTemplate();
   instance_template->SetInternalFieldCount(1);
   
@@ -67,8 +67,9 @@ void ODBCStatement::Init(v8::Handle<Object> exports) {
   Nan::SetPrototypeMethod(t, "closeSync", CloseSync);
 
   // Attach the Database Constructor to the target object
-  constructor.Reset(t->GetFunction());
-  exports->Set(Nan::New("ODBCStatement").ToLocalChecked(), t->GetFunction());
+  constructor.Reset(Nan::GetFunction(t).ToLocalChecked());
+  Nan::Set(exports, Nan::New("ODBCStatement").ToLocalChecked(),
+              Nan::GetFunction(t).ToLocalChecked());
 }
 
 ODBCStatement::~ODBCStatement() {
@@ -195,7 +196,7 @@ void ODBCStatement::UV_AfterExecute(uv_work_t* req, int status) {
   if (SQL_SUCCEEDED( data->result )) {
     for(int i = 0; i < stmt->paramCount; i++) { // For stored Procedure CALL
       if(stmt->params[i].paramtype % 2 == 0) {
-        sp_result->Set(Nan::New(outParamCount), ODBC::GetOutputParameter(stmt->params[i]));
+        Nan::Set(sp_result, Nan::New(outParamCount), ODBC::GetOutputParameter(stmt->params[i]));
         outParamCount++;
       }
     }
@@ -265,7 +266,7 @@ NAN_METHOD(ODBCStatement::ExecuteSync) {
   if (SQL_SUCCEEDED(ret)) {
     for(int i = 0; i < stmt->paramCount; i++) { // For stored Procedure CALL
       if(stmt->params[i].paramtype % 2 == 0) {
-        sp_result->Set(Nan::New(outParamCount), ODBC::GetOutputParameter(stmt->params[i]));
+        Nan::Set(sp_result, Nan::New(outParamCount), ODBC::GetOutputParameter(stmt->params[i]));
         outParamCount++;
       }
     }
@@ -297,8 +298,8 @@ NAN_METHOD(ODBCStatement::ExecuteSync) {
     if( outParamCount ) // Its a CALL stmt with OUT params.
     {   // Return an array with outparams as second element. [result, outparams]
         Local<Array> resultset = Nan::New<Array>();
-        resultset->Set(0, js_result);
-        resultset->Set(1, sp_result);
+        Nan::Set(resultset, 0, js_result);
+        Nan::Set(resultset, 1, sp_result);
         info.GetReturnValue().Set(resultset);
     }
     else
@@ -478,7 +479,7 @@ NAN_METHOD(ODBCStatement::ExecuteDirect) {
 #else
   data->sql = (char *) malloc(data->sqlLen +1);
   MEMCHECK( data->sql );
-  sql->WriteUtf8((char *) data->sql);
+  sql->WriteUtf8(ISOLATECOMMA (char *) data->sql);
 #endif
 
   data->stmt = stmt;
@@ -637,7 +638,7 @@ NAN_METHOD(ODBCStatement::PrepareSync) {
   char *sql2;
   sql2 = (char *) malloc(sqlLen);
   MEMCHECK( sql2 );
-  sql->WriteUtf8(sql2);
+  sql->WriteUtf8(ISOLATECOMMA sql2);
 #endif
   
   ret = SQLPrepare(
@@ -692,7 +693,7 @@ NAN_METHOD(ODBCStatement::Prepare) {
 #else
   data->sql = (char *) malloc(data->sqlLen +1);
   MEMCHECK( data->sql );
-  sql->WriteUtf8((char *) data->sql);
+  sql->WriteUtf8(ISOLATECOMMA (char *) data->sql);
 #endif
   
   data->stmt = stmt;
