@@ -221,12 +221,8 @@ function InstallNodeInformixDB() {
     }
 
     function removeWinBuildArchive() {
-        var WIN_BUILD_FILE = path.resolve(CURRENT_DIR, 'build.zip');
-        fs.exists(WIN_BUILD_FILE, function (exists) {
-            if (exists) {
-                fs.unlinkSync(WIN_BUILD_FILE);
-            }
-        });
+        var WIN_BUILD_ZIP_FILE = 'build.zip';
+        removeDir(WIN_BUILD_ZIP_FILE);
     }
 
     function removeDir(dir) {
