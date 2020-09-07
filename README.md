@@ -3,10 +3,6 @@ Informix native node.js driver is a high performance driver with asynchronous/sy
 
 **Supported Platforms** - Windows64, MacOS64, Linuxx64, Linuxia32, AIX.
 
-## API Documentation
-
-> For complete list of informixdb APIs and example, please check [APIDocumentation.md](https://github.com/OpenInformix/node-informixdb/blob/master/APIDocumentation.md)
-
 ## Supported Node.js Versions
 
 | Node.js Version   | Windows 64        | Linux x64         | MacOS             | AIX                |
@@ -14,7 +10,7 @@ Informix native node.js driver is a high performance driver with asynchronous/sy
 | < V8.X            | NO (DISCONTINUED) | NO (DISCONTINUED) | NO (DISCONTINUED) | NO (DISCONTINUED)  |
 |   V8.X            | YES (DEPRECATED)  | NO (DISCONTINUED) | NO (DISCONTINUED) | NO (DISCONTINUED)  |
 |   V9.X            | YES (DEPRECATED)  | NO (DISCONTINUED) | NO (DISCONTINUED) | NO (DISCONTINUED)  |
-| -------------------------------------- RECOMMENDED VERSIONS -------------------------------------- |
+  -------------------------------------- RECOMMENDED VERSIONS --------------------------------------
 |   V10.X           | YES               | YES               | Yes               | YES                |
 |   V11.X           | YES               | YES               | Yes               | YES                |
 |   V12.X           | YES               | YES               | Yes               | YES                |
@@ -51,7 +47,11 @@ or, you can install the latest driver from Github (Not recommanded for productio
 npm install git+https://github.com/OpenInformix/node-informixdb.git
 ```
 
-> For more installation details please refer:  [INSTALLATION GUIDE](https://github.com/OpenInformix/node-informixdb/blob/master/INSTALL.md)
+> [For more installation details please refer:  INSTALLATION GUIDE](https://github.com/OpenInformix/node-informixdb/blob/master/INSTALL.md)
+
+## API Documentation
+
+> [For complete list of informixdb APIs and example, please check API DOCUMENTATION](https://github.com/OpenInformix/node-informixdb/blob/master/APIDocumentation.md)
 
 
 ### Important Environment Variables and Download Essentials 
