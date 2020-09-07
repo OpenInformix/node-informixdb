@@ -40,6 +40,8 @@ function InstallNodeInformixDB() {
     var fstream = require('fstream');
     var unzipper = require('unzipper');
 
+    checkDriverCompatibilityForOSAndNodejsVersion();
+
     var CSDK_HOME, CSDK_INCLUDE, CSDK_LIB;
 
     if (process.env.CSDK_HOME || process.env.INFORMIXDIR) {
@@ -82,12 +84,12 @@ function InstallNodeInformixDB() {
 
             if ((platform == 'linux') || (platform == 'aix') ||
                 (platform == 'darwin' && arch == 'x64')) {
-                removeWinBuildArchive();
-                buildBinary();
+                buildDriverAndGenerateBinary();
+                //installPreCompiledBinary();
             }
         }
         else if (platform == 'win32' && arch == 'x64') {
-            buildBinary();
+            buildDriverAndGenerateBinary();
         }
         else {
             console.log('\nBuilding binaries for node-informixdb. This platform ' +
@@ -102,7 +104,31 @@ function InstallNodeInformixDB() {
         process.exit(1);
     }  // * END OF EXECUTION */
 
-    function buildBinary(isDownloaded) {
+    function checkDriverCompatibilityForOSAndNodejsVersion() {
+        console.log("\nPlatform = ", platform, ", Arch = ", arch, ", Node.js version = ", process.version);
+        if (platform == 'win32' && arch == 'x64') {
+            // Add-on binaries for node.js version less than 8.0 has been discontinued.
+            if (Number(process.version.match(/^v(\d+\.\d+)/)[1]) < 8.0) {
+                console.log('\nERROR: node-informixdb does not provide compilation and precompiled add-on binary support for node.js version < 8.X on Windows platforms.' +
+                    ' Please use the node.js version >= 8.X\n');
+                process.exit(1);
+            }
+        }
+        else if (platform = 'linux') {
+            // Add-on binaries for node.js version less than 10.0 has been discontinued.
+            if (Number(process.version.match(/^v(\d+\.\d+)/)[1]) < 10.0) {
+                console.log('\nERROR: node-informixdb does not provide compilation and precompiled add-on binary support for node.js version < 10.X on Linux platforms.' +
+                    ' Please use the node.js version >= 10.X\n');
+                process.exit(1);
+            }
+        }
+        else {
+            console.log('\nERROR: Platform: ' + platform + ' with arch: ' + arch + ' is not supported. Please use a supported OS platform.\n');
+            process.exit(1);
+        }
+    }
+
+    function buildDriverAndGenerateBinary(isDownloaded) {
         var buildString = "node-gyp configure build ";
 
         // Clean existing build directory
@@ -116,17 +142,15 @@ function InstallNodeInformixDB() {
                 console.log(stdout);
 
                 if (error !== null) {
-                    // "node-gyp" FAILED: RUN Pre-compiled Binary Installation process.
                     console.log(error);
-                    console.log('\nERROR: node-gyp build process failed! \n' +
-                        '\nACTION: Proceeding with Pre-compiled Binary Installation. \n');
-                    installPreCompiledWinBinary();
+                    console.log('\nERROR: node-gyp build process failed! \n' + error);
+                    installPreCompiledBinary();
                     return;
                 } else {
                     console.log("\n" +
-                        "===================================\n" +
-                        "node-informixdb installed successfully!\n" +
-                        "===================================\n");
+                    "=======================================\n" +
+                    "node-informixdb installed successfully!\n" +
+                    "=======================================\n");
                 }
             });
         }
@@ -135,89 +159,93 @@ function InstallNodeInformixDB() {
             var childProcess = exec(buildString, function (error, stdout, stderr) {
                 console.log(stdout);
                 if (error !== null) {
-                    console.log(error);
-                    process.exit(1);
+                    console.log('\nERROR: node-gyp build process failed! \n' + error);
+                    installPreCompiledBinary();
+                    return;
                 } else {
                     console.log("\n" +
-                        "===================================\n" +
-                        "node-informixdb installed successfully!\n" +
-                        "===================================\n");
+                    "=======================================\n" +
+                    "node-informixdb installed successfully!\n" +
+                    "=======================================\n");
                 }
             });
         }
-    } //buildBinary
+    } //buildDriverAndGenerateBinary
 
-    function installPreCompiledWinBinary() {
-        if (platform == 'win32') {
-            if (arch == 'x64') {
-                var BUILD_FILE = path.resolve(CURRENT_DIR, 'build.zip');
+    function installPreCompiledBinary() {
+        console.log('\nACTION: Proceeding with Pre-compiled Binary Installation. \n');
+        // build.zip file contains all the pre-compiled binary files
+        var BUILD_FILE = path.resolve(CURRENT_DIR, 'build.zip');
 
-                //Windows node binary names should update here.
-                var ODBC_BINDINGS = 'build\/Release\/odbc_bindings.node';
-                var ODBC_BINDINGS_V8 = 'build\/Release\/odbc_bindings.node.8.16.0';
-                var ODBC_BINDINGS_V9 = 'build\/Release\/odbc_bindings.node.9.11.2';
-                var ODBC_BINDINGS_V10 = 'build\/Release\/odbc_bindings.node.10.16.0';
-                var ODBC_BINDINGS_V11 = 'build\/Release\/odbc_bindings.node.11.15.0';
+        // This will always be the final installation name/path for all the binaries
+        var ODBC_BINDINGS = 'build\/Release\/odbc_bindings.node';
 
-                // Windows add-on binary for node.js v0.10.x and v0.12.7 has been discontinued.
-                if (Number(process.version.match(/^v(\d+\.\d+)/)[1]) < 8.0) {
-                    console.log('\nERROR: Did not find precompiled add-on binary for node.js version ' + process.version + ':' +
-                        '\ninformixdb does not provide precompiled add-on binary for node.js version ' + process.version +
-                        ' on Windows platform. Visual Studio is required to compile informixdb with node.js versions < 8.X. ' +
-                        'Otherwise please use the node.js version >= 8.X\n');
-                    process.exit(1);
-                }
+        // Supported Node.js versions bonaries
+        var ODBC_BINDINGS_V8, ODBC_BINDINGS_V9, ODBC_BINDINGS_V10, ODBC_BINDINGS_V11, ODBC_BINDINGS_V12, ODBC_BINDINGS_V13, ODBC_BINDINGS_V14
 
-                /*
-                 * odbcBindingsNode will consist of the node binary-
-                 * file name according to the node version in the system.
-                 */
-                var odbcBindingsNode = (Number(process.version.match(/^v(\d+\.\d+)/)[1]) < 9.0) && ODBC_BINDINGS_V8 ||
-                    (Number(process.version.match(/^v(\d+\.\d+)/)[1]) < 10.0) && ODBC_BINDINGS_V9 ||
-                    (Number(process.version.match(/^v(\d+\.\d+)/)[1]) < 11.0) && ODBC_BINDINGS_V10 || 
-                    (Number(process.version.match(/^v(\d+\.\d+)/)[1]) < 12.0) && ODBC_BINDINGS_V11 || ODBC_BINDINGS;
-
-                // Removing the "build" directory created by Auto Installation Process.
-                // "unzipper" will create a fresh "build" directory for extraction of "build.zip".
-                removeDir('build');
-
-                readStream = fs.createReadStream(BUILD_FILE);
-
-                /*
-                 * unzipper will parse the build.zip file content and
-                 * then it will check for the odbcBindingsNode
-                 * (node Binary), when it gets that binary file,
-                 * fstream.Writer will write the same node binary
-                 * but the name will be odbc_bindings.node, and the other
-                 * binary files and build.zip will be discarded.
-                 */
-                readStream.pipe(unzipper.Parse())
-                    .on('entry', function (entry) {
-                        if (entry.path === odbcBindingsNode) {
-                            entry.pipe(fstream.Writer(ODBC_BINDINGS));
-                        } else {
-                            entry.autodrain();
-                        }
-                    })
-                    .on('error', function (e) {
-                        console.log('\nERROR: Installation Failed! \n', e);
-                        process.exit(1);
-                    })
-                    .on('finish', function () {
-                        console.log("\n" +
-                            "===================================\n" +
-                            "node-informixdb installed successfully!\n" +
-                            "===================================\n");
-                    });
-
-                return 1;
-
-            } else {
-                console.log('\nERROR: Windows 32 bit not supported. Please use an ' +
-                    'x64 architecture.\n');
-                process.exit(1);
-            }
+        if (platform == 'win32' && arch == 'x64') {
+            // Windows node binary names should update here.
+            ODBC_BINDINGS_V8 = 'build\/Release\/odbc_bindings_win64.node.8.16.0';
+            ODBC_BINDINGS_V9 = 'build\/Release\/odbc_bindings_win64.node.9.11.2';
+            ODBC_BINDINGS_V10 = 'build\/Release\/odbc_bindings_win64.node.10.16.0';
+            ODBC_BINDINGS_V11 = 'build\/Release\/odbc_bindings_win64.node.11.15.0';
+            ODBC_BINDINGS_V12 = 'build\/Release\/odbc_bindings_win64.node.12.15.0';
+            ODBC_BINDINGS_V13 = 'build\/Release\/odbc_bindings_win64.node.13.14.0';
+            ODBC_BINDINGS_V14 = 'build\/Release\/odbc_bindings_win64.node.14.9.0';
         }
+        else if (platform = 'linux') {
+            // Linux node binary names should update here.
+            ODBC_BINDINGS_V10 = 'build\/Release\/odbc_bindings_linux.node.10.16.0';
+            ODBC_BINDINGS_V11 = 'build\/Release\/odbc_bindings_linux.node.11.15.0';
+            ODBC_BINDINGS_V12 = 'build\/Release\/odbc_bindings_linux.node.12.15.0';
+            ODBC_BINDINGS_V13 = 'build\/Release\/odbc_bindings_linux.node.13.14.0';
+            ODBC_BINDINGS_V14 = 'build\/Release\/odbc_bindings_linux.node.14.9.0';
+        }
+
+        /*
+        * odbcBindingsNode will consist of the node binary-
+        * file name according to the node version in the system.
+        */
+        var odbcBindingsNode = (Number(process.version.match(/^v(\d+\.\d+)/)[1]) < 9.0) && ODBC_BINDINGS_V8 ||
+            (Number(process.version.match(/^v(\d+\.\d+)/)[1]) < 10.0) && ODBC_BINDINGS_V9 ||
+            (Number(process.version.match(/^v(\d+\.\d+)/)[1]) < 11.0) && ODBC_BINDINGS_V10 ||
+            (Number(process.version.match(/^v(\d+\.\d+)/)[1]) < 12.0) && ODBC_BINDINGS_V11 ||
+            (Number(process.version.match(/^v(\d+\.\d+)/)[1]) < 13.0) && ODBC_BINDINGS_V12 ||
+            (Number(process.version.match(/^v(\d+\.\d+)/)[1]) < 14.0) && ODBC_BINDINGS_V13 || ODBC_BINDINGS_V14;
+
+        // Removing the "build" directory created by Auto Installation Process.
+        // "unzipper" will create a fresh "build" directory for extraction of "build.zip".
+        removeDir('build');
+
+        readStream = fs.createReadStream(BUILD_FILE);
+
+        /*
+        * unzipper will parse the build.zip file content and
+        * then it will check for the odbcBindingsNode
+        * (node Binary), when it gets that binary file,
+        * fstream.Writer will write the same node binary
+        * but the name will be odbc_bindings.node, and the other
+        * binary files and build.zip will be discarded.
+        */
+        readStream.pipe(unzipper.Parse())
+            .on('entry', function (entry) {
+                if (entry.path === odbcBindingsNode) {
+                    entry.pipe(fstream.Writer(ODBC_BINDINGS));
+                } else {
+                    entry.autodrain();
+                }
+            })
+            .on('error', function (e) {
+                console.log('\nERROR: Installation Failed! \n', e);
+                process.exit(1);
+            })
+            .on('finish', function () {
+                console.log("\n" +
+                "=======================================\n" +
+                "node-informixdb installed successfully!\n" +
+                "=======================================\n");
+            });
+        return 1;
     }
 
     function removeWinBuildArchive() {

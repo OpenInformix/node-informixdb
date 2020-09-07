@@ -25,13 +25,14 @@
       },
 
       'conditions' : [
-        [ '(OS == "linux" and (target_arch =="ia32" or target_arch == "s390" or target_arch == "ppc32" or target_arch == "arm")) or (OS == "aix" and target_arch == "ppc")',
-          { 
-            'conditions' : [],  
+        ############### Linux 32bit #################
+        [ '(OS == "linux" and target_arch =="ia32")',
+          {
+            'conditions' : [],
             'libraries' : 
             [ 
               '-L$(CSDK_HOME)/lib/cli',
-              '-lthcli' 
+              '-lthcli'
             ],
             'include_dirs' : 
             [
@@ -41,7 +42,25 @@
           }
         ],
 
-        [ '(OS == "linux" or OS == "aix") and (target_arch =="x64"  or target_arch == "s390x" or target_arch == "ppc64")',
+        ############### Linux ARM #################
+        [ '(OS == "linux" and target_arch =="arm")',
+          {
+            'conditions' : [],
+            'libraries' :
+            [
+              '-L$(CSDK_HOME)/lib/cli ',
+              '-lthcli'
+            ],
+            'include_dirs' :
+            [
+              '$(CSDK_HOME)/incl/cli'
+            ],
+            'cflags' : ['-g'],
+          }
+        ],
+
+        ############### Linux 64bit #################
+        [ '(OS == "linux" and target_arch =="x64")',
           { 
             'conditions' : [],    
             'libraries' :
@@ -57,7 +76,8 @@
           }
         ],
 
-        [ 'OS == "mac" and target_arch =="x64" ',
+        ############### MAC 64bit #################
+        [ '(OS == "mac" and target_arch =="x64")',
           { 'xcode_settings' : {'GCC_ENABLE_CPP_EXCEPTIONS': 'YES' },
             'libraries' :
             [
@@ -72,7 +92,8 @@
           }
         ],
 
-        [ 'OS=="win" and target_arch =="ia32"',
+        ############### Win 32bit #################
+        [ '(OS=="win" and target_arch =="ia32")',
           { 'sources' : ['src/strptime.c', 'src/odbc.cpp'],
             'libraries' :
             [
@@ -86,7 +107,8 @@
           }
         ],
 
-        [ 'OS=="win" and target_arch =="x64"',
+        ############### Win 64bit #################
+        [ '(OS=="win" and target_arch =="x64")',
           { 'sources' : ['src/strptime.c', 'src/odbc.cpp'],
             'libraries' :
             [
@@ -100,6 +122,7 @@
           }
         ],
 
+        ############### Undefined 32bit OS #################
         [ 'OS != "linux" and OS!="win" and OS!="darwin" and target_arch =="ia32" ',
           { 'conditions' : [],
             'libraries' :
@@ -115,6 +138,7 @@
           }
         ], 
 
+        ############### Undefined 64bit OS #################
         [ 'OS != "linux" and OS != "win" and OS != "mac" and target_arch == "x64" ',
           { 'conditions' : [],    
             'libraries' :
