@@ -185,8 +185,6 @@ function InstallNodeInformixDB() {
 
         if (platform == 'win32' && arch == 'x64') {
             // Windows node binary names should update here.
-            ODBC_BINDINGS_V8 = 'build\/Release\/odbc_bindings_win64.node.8.16.0';
-            ODBC_BINDINGS_V9 = 'build\/Release\/odbc_bindings_win64.node.9.11.2';
             ODBC_BINDINGS_V10 = 'build\/Release\/odbc_bindings_win64.node.10.16.0';
             ODBC_BINDINGS_V11 = 'build\/Release\/odbc_bindings_win64.node.11.15.0';
             ODBC_BINDINGS_V12 = 'build\/Release\/odbc_bindings_win64.node.12.15.0';
@@ -246,11 +244,6 @@ function InstallNodeInformixDB() {
                 "=======================================\n");
             });
         return 1;
-    }
-
-    function removeWinBuildArchive() {
-        var WIN_BUILD_ZIP_FILE = 'build.zip';
-        removeDir(WIN_BUILD_ZIP_FILE);
     }
 
     function removeDir(dir) {
