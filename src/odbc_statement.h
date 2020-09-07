@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2017, 2020 OpenInformix (HCL Technologies).
+  Copyright (c) 2017, 2020 OpenInformix.
   Copyright (c) 2014, IBM Corporation.
   Copyright (c) 2013, Dan VerWeire <dverweire@gmail.com>
   Copyright (c) 2010, Lee Smith <notwink@gmail.com>

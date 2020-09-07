@@ -27,10 +27,30 @@ Informix native node.js driver is a high performance driver with asynchronous/sy
 
 - Informix CSDK (Client Software Development Kit) for connectivity.
 
-- If Windows Platform : for compilation of informixdb Visual Studio is required, if not available then module will install with "pre-compiled" binary version.
+- Set **CSDK_HOME** or **INFORMIXDIR** environment variables to a pre-installed Informix CSDK installation directory.
 
-- If Linux Platform : for compilation of informixdb C++11 compiler is required, if not available then module will install with "pre-compiled" binary version.
+- If Windows Platform: for compilation of informixdb Visual Studio is required, if not available then module will install with "pre-compiled" binary version.
+
+- If Linux Platform: for compilation of informixdb C++11 compiler is required, if not available then module will install with "pre-compiled" binary version.
   (Note the default compiler on RHEL 6 does not have the required support. Install a newer compiler or upgrade the older one.)
+
+### Important Environment Variables and Download Essentials 
+
+`CSDK_HOME:`
+
+- USE:
+	- On distributed platforms, set this environment variable if you want to compile/build the informixdb module.
+
+- HOW:
+	- Set **CSDK_HOME** environment variable to a pre-installed **Informix CSDK installation directory**.
+
+`INFORMIXDIR:`
+
+- USE:
+	- On distributed platforms, set this environment variable if you want to compile/build the informixdb module.
+
+- HOW:
+	- Set **INFORMIXDIR** environment variable to a pre-installed **Informix CSDK installation directory**.
 
 ## Install
 
@@ -51,27 +71,6 @@ npm install git+https://github.com/OpenInformix/node-informixdb.git
 ## API Documentation
 
 > [For complete list of informixdb APIs and example, please check API DOCUMENTATION](https://github.com/OpenInformix/node-informixdb/blob/master/APIDocumentation.md)
-
-
-### Important Environment Variables and Download Essentials 
-
-`CSDK_HOME :`
-
-- USE:
-	- On distributed platforms, set this environment variable if you want to compile/build the informixdb module.
-
-- HOW:
-	- Set **CSDK_HOME** environment variable to a pre-installed **Informix CSDK or Informix server installation directory**.
-
-`INFORMIXDIR :`
-
-- USE:
-	- On distributed platforms, set this environment variable if you want to compile/build the informixdb module.
-
-- HOW:
-	- Set **INFORMIXDIR** environment variable to a pre-installed **Informix server installation directory**.
-
-
 
 ## Quick Example
 
@@ -151,11 +150,12 @@ If no solution found, you can open a new issue on GitHub.
 ## Contributors
 
 * Rohit Pandey (rht.uimworld@gmail.com)
+* Anjali Pancholi
 * Sathyanesh Krishnan (msatyan@gmail.com)
 * Javier Sagrera
 * Dan VerWeire (dverweire@gmail.com)
 * Lee Smith (notwink@gmail.com)
-* HCL/IBM
+* IBM
 
 ## Contributing to the informixdb
 
@@ -168,7 +168,7 @@ DC Signed-off-by: Random J Developer <random@developer.org>
 
 ## License
 
-  Copyright (c) 2017, 2020 OpenInformix (HCL Technologies).
+  Copyright (c) 2017, 2020 OpenInformix.
   Copyright (c) 2014, IBM Corporation.
   Copyright (c) 2013, Dan VerWeire <dverweire@gmail.com>
   Copyright (c) 2010, Lee Smith <notwink@gmail.com>
