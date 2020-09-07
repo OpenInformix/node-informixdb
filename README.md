@@ -5,12 +5,13 @@ Informix native node.js driver is a high performance driver with asynchronous/sy
 
 ## Supported Node.js Versions
 
+**Recommended version of node.js is >= V10.X**
+
 | Node.js Version   | Windows 64        | Linux x64         | MacOS             | AIX                |
 | :---:             | :---:             | :---:             | :---:             | :---:              |
 | < V8.X            | NO (DISCONTINUED) | NO (DISCONTINUED) | NO (DISCONTINUED) | NO (DISCONTINUED)  |
 |   V8.X            | YES (DEPRECATED)  | NO (DISCONTINUED) | NO (DISCONTINUED) | NO (DISCONTINUED)  |
 |   V9.X            | YES (DEPRECATED)  | NO (DISCONTINUED) | NO (DISCONTINUED) | NO (DISCONTINUED)  |
-  -------------------------------------- RECOMMENDED VERSIONS --------------------------------------
 |   V10.X           | YES               | YES               | Yes               | YES                |
 |   V11.X           | YES               | YES               | Yes               | YES                |
 |   V12.X           | YES               | YES               | Yes               | YES                |
@@ -18,15 +19,13 @@ Informix native node.js driver is a high performance driver with asynchronous/sy
 |   V14.X           | YES               | YES               | Yes               | YES                |
 | > V14.X           | FUTURE            | FUTURE            | FUTURE            | FUTURE             |
 
+**The latest node.js version using which ibm_db is tested: 14.9.0**
+
 ## Prerequisite
 
 - Python 2.7 is required by node-gyp.
 
 - Informix CSDK (Client Software Development Kit) for connectivity.
-
-- Recommended version of node.js is >= V10.X.
-
-- The latest node.js version using which ibm_db is tested: 14.9.0
 
 - If Windows Platform : for compilation of informixdb Visual Studio is required, if not available then module will install with "pre-compiled" binary version.
 
