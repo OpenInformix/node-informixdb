@@ -10,8 +10,8 @@ Informix native node.js driver is a high performance driver with asynchronous/sy
 | Node.js Version   | Windows 64        | Linux x64         | MacOS             | AIX                |
 | :---:             | :---:             | :---:             | :---:             | :---:              |
 | < V8.X            | NO (DISCONTINUED) | NO (DISCONTINUED) | NO (DISCONTINUED) | NO (DISCONTINUED)  |
-|   V8.X            | YES (DEPRECATED)  | NO (DISCONTINUED) | NO (DISCONTINUED) | NO (DISCONTINUED)  |
-|   V9.X            | YES (DEPRECATED)  | NO (DISCONTINUED) | NO (DISCONTINUED) | NO (DISCONTINUED)  |
+|   V8.X            | NO (DISCONTINUED) | NO (DISCONTINUED) | NO (DISCONTINUED) | NO (DISCONTINUED)  |
+|   V9.X            | NO (DISCONTINUED) | NO (DISCONTINUED) | NO (DISCONTINUED) | NO (DISCONTINUED)  |
 |   V10.X           | YES               | YES               | Yes               | YES                |
 |   V11.X           | YES               | YES               | Yes               | YES                |
 |   V12.X           | YES               | YES               | Yes               | YES                |
