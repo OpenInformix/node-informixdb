@@ -106,18 +106,10 @@ function InstallNodeInformixDB() {
 
     function checkDriverCompatibilityForOSAndNodejsVersion() {
         console.log("\nPlatform = ", platform, ", Arch = ", arch, ", Node.js version = ", process.version);
-        if (platform == 'win32' && arch == 'x64') {
-            // Add-on binaries for node.js version less than 8.0 has been discontinued.
-            if (Number(process.version.match(/^v(\d+\.\d+)/)[1]) < 8.0) {
-                console.log('\nERROR: node-informixdb does not provide compilation and precompiled add-on binary support for node.js version < 8.X on Windows platforms.' +
-                    ' Please use the node.js version >= 8.X\n');
-                process.exit(1);
-            }
-        }
-        else if (platform = 'linux') {
+        if ((platform == 'win32' && arch == 'x64') || platform == 'linux') {
             // Add-on binaries for node.js version less than 10.0 has been discontinued.
             if (Number(process.version.match(/^v(\d+\.\d+)/)[1]) < 10.0) {
-                console.log('\nERROR: node-informixdb does not provide compilation and precompiled add-on binary support for node.js version < 10.X on Linux platforms.' +
+                console.log('\nERROR: node-informixdb does not provide compilation and precompiled add-on binary support for node.js version < 10.X on Windows & Linux platforms.' +
                     ' Please use the node.js version >= 10.X\n');
                 process.exit(1);
             }
