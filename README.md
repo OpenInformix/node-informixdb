@@ -7,17 +7,35 @@ Informix native node.js driver is a high performance driver with asynchronous/sy
 
 > For complete list of informixdb APIs and example, please check [APIDocumentation.md](https://github.com/OpenInformix/node-informixdb/blob/master/APIDocumentation.md)
 
-## Prerequisite
+## Supported Node.js Versions
 
-- For higher versions of node (When building with Node 4 onwards) the compiler must support C++11. Note the default compiler on RHEL 6 does not have the required support. Install a newer compiler or upgrade the older one.
+| Node.js Version   | Windows 64        | Linux x64         | MacOS             | AIX                |
+| :---:             | :---:             | :---:             | :---:             | :---:              |
+| < V8.X            | NO (DISCONTINUED) | NO (DISCONTINUED) | NO (DISCONTINUED) | NO (DISCONTINUED)  |
+|   V8.X            | YES (DEPRECATED)  | NO (DISCONTINUED) | NO (DISCONTINUED) | NO (DISCONTINUED)  |
+|   V9.X            | YES (DEPRECATED)  | NO (DISCONTINUED) | NO (DISCONTINUED) | NO (DISCONTINUED)  |
+| -------------------------------------- RECOMMENDED VERSIONS -------------------------------------- |
+|   V10.X           | YES               | YES               | Yes               | YES                |
+|   V11.X           | YES               | YES               | Yes               | YES                |
+|   V12.X           | YES               | YES               | Yes               | YES                |
+|   V13.X           | YES               | YES               | Yes               | YES                |
+|   V14.X           | YES               | YES               | Yes               | YES                |
+| > V14.X           | FUTURE            | FUTURE            | FUTURE            | FUTURE             |
+
+## Prerequisite
 
 - Python 2.7 is required by node-gyp.
 
 - Informix CSDK (Client Software Development Kit) for connectivity.
 
-- Recommended version of node.js is >= V4.X.
+- Recommended version of node.js is >= V10.X.
 
-- If Windows Platform : for compilation of informixdb Visual Studio is required, if not available then module will install with "pre-compiled" binary version. 
+- The latest node.js version using which ibm_db is tested: 14.9.0
+
+- If Windows Platform : for compilation of informixdb Visual Studio is required, if not available then module will install with "pre-compiled" binary version.
+
+- If Linux Platform : for compilation of informixdb C++11 compiler is required, if not available then module will install with "pre-compiled" binary version.
+  (Note the default compiler on RHEL 6 does not have the required support. Install a newer compiler or upgrade the older one.)
 
 ## Install
 
@@ -25,6 +43,12 @@ You may install the package using npm install command:
 
 ```
 npm install informixdb
+```
+
+or, you can install the latest driver from Github (Not recommanded for production use):
+
+```
+npm install git+https://github.com/OpenInformix/node-informixdb.git
 ```
 
 > For more installation details please refer:  [INSTALLATION GUIDE](https://github.com/OpenInformix/node-informixdb/blob/master/INSTALL.md)
