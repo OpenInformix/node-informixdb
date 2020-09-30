@@ -31,7 +31,7 @@ class ODBCConnection : public Nan::ObjectWrap {
    static Nan::Persistent<String> OPTION_NORESULTS;
    static Nan::Persistent<Function> constructor;
    
-   static void Init(v8::Local<Object> exports);
+   static NAN_MODULE_INIT(Init);
    
    void Free();
    

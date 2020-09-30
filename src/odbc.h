@@ -124,10 +124,10 @@ class ODBC : public Nan::ObjectWrap {
     static uv_mutex_t g_odbcMutex;
     static uv_async_t g_async;
     
-    static void Init(v8::Local<Object> exports);
+    static NAN_MODULE_INIT(Init);
     static Column* GetColumns(SQLHSTMT hStmt, short* colCount);
     static void FreeColumns(Column* columns, short* colCount);
-    static Local<Value> GetColumnValue(SQLHSTMT hStmt, Column column, uint16_t* buffer, int bufferLength);
+    static v8::Local<Value> GetColumnValue(SQLHSTMT hStmt, Column column, uint16_t* buffer, int bufferLength);
     static Local<Value> GetOutputParameter(Parameter prm);
     static Local<Object> GetRecordTuple (SQLHSTMT hStmt, Column* columns, short* colCount, uint16_t* buffer, int bufferLength);
     static Local<Value> GetRecordArray (SQLHSTMT hStmt, Column* columns, short* colCount, uint16_t* buffer, int bufferLength);
@@ -238,13 +238,13 @@ struct query_request {
 #define REQ_WSTR_ARG(I, VAR)                                             \
   if (info.Length() <= (I) || !info[I]->IsString())                     \
     return Nan::ThrowTypeError("Argument " #I " must be a string");       \
-  String::Value VAR(info[I]->ToString());
+  Nan::Utf8String VAR(info[I]);
 
 //Require String Argument; Save String as Object
 #define REQ_STRO_ARG(I, VAR)                                             \
   if (info.Length() <= (I) || !info[I]->IsString())                     \
     return Nan::ThrowTypeError("Argument " #I " must be a string");       \
-  Local<String> VAR(info[I]->TOSTRING);
+  Nan::Utf8String VAR(info[I]);
 
 //Require String or Null Argument; Save String as Utf8
 #define REQ_STR_OR_NULL_ARG(I, VAR)                                             \
@@ -264,7 +264,7 @@ struct query_request {
     Nan::ThrowTypeError("Argument " #I " must be a string or null");                \
     return;                                                         \
   }                                                                               \
-  Local<String> VAR(info[I]->TOSTRING);
+  Nan::Utf8String VAR(info[I]);
 
 #define REQ_FUN_ARG(I, VAR)                                             \
   if (info.Length() <= (I) || !info[I]->IsFunction())                   \
@@ -281,6 +281,11 @@ struct query_request {
     return Nan::ThrowTypeError("Argument " #I " invalid");                \
   Local<External> VAR = Local<External>::Cast(info[I]);
 
+#define REQ_INT_ARG(I, VAR)                                             \
+  if (info.Length() <= (I) || !info[I]->IsInt32())                      \
+    return Nan::ThrowTypeError("Argument " #I " invalid");              \
+  SQLINTEGER VAR = (Nan::To<v8::Int32>(info[I]).ToLocalChecked()->Value());
+
 #define OPT_INT_ARG(I, VAR, DEFAULT)                                    \
   SQLUSMALLINT VAR;                                                     \
   if (info.Length() <= (I)) {                                           \
@@ -291,6 +296,25 @@ struct query_request {
     return Nan::ThrowTypeError("Argument " #I " must be an integer");     \
   }
 
+// Macro to get c++ string from Utf8String(JS string)
+#ifdef UNICODE
+  #define GETCPPSTR(to, from, len)                                      \
+    if(len > 0 && strcmp(*from, "null")) {                              \
+      to = (uint16_t *) malloc((len + 1) * sizeof(uint16_t));           \
+      MEMCHECK( to ) ;                                                  \
+      /*std::copy(*from, *from + len, (uint16_t*)to); */                \
+      memcpy(to, *from, len);                                           \
+      ((uint16_t*)to)[len] = '\0';                                      \
+    } else { len = 0; }
+#else
+  #define GETCPPSTR(to, from, len)                                      \
+    if(len > 0 && strcmp(*from, "null")) {                              \
+      to = (char *)malloc(len + 1);                                     \
+      MEMCHECK( to ) ;                                                  \
+      memcpy(to, *from, len);                                           \
+      ((char*)to)[len] = '\0';                                          \
+    } else { len = 0; }
+#endif
 
 // From node v10 NODE_DEFINE_CONSTANT
 #define NODE_ODBC_DEFINE_CONSTANT(constructor_template, constant)       \
@@ -298,4 +322,19 @@ struct query_request {
                 Nan::New<Number>(constant),                               \
                 static_cast<v8::PropertyAttribute>(v8::ReadOnly|v8::DontDelete))
 
+#endif
+
+// Macro to fee the memory allocated by GETCPPSTR
+#ifdef UNICODE
+  #define FREE(var)               \
+    if (var != NULL) {            \
+      free((uint16_t *)var);      \
+      var = NULL;                 \
+    }
+#else
+  #define FREE(var)               \
+    if (var != NULL) {            \
+      free((char *)var);          \
+      var = NULL;                 \
+    }
 #endif
