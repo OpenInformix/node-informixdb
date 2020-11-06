@@ -292,15 +292,15 @@ function buildDriverAndGenerateBinary(isDownloaded) {
 }; //buildDriverAndGenerateBinary
 
 function installPreCompiledBinary() {
+    console.log('\nACTION: Proceeding with Pre-compiled Binary Installation. \n');
     if (!process.env.CSDK_HOME || !process.env.INFORMIXDIR || !fs.existsSync(DOWNLOAD_DIR + "/onedb-odbc-driver"))
     {
-        console.log('\n No prior CSDK/ODBC installation/directory found. Please check if you have ' +
+        console.log('\nNo prior CSDK/ODBC installation/directory found. Please check if you have ' +
                 'set the CSDK_HOME/INFORMIXDIR environment variable\'s value correctly.\n');
         console.log('\nERROR: Installation Failed! \n');
         process.exit(1);
     }
     var fstream = require('fstream');
-    console.log('\nACTION: Proceeding with Pre-compiled Binary Installation. \n');
     // build.zip file contains all the pre-compiled binary files
     var BUILD_FILE = path.resolve(CURRENT_DIR, 'build.zip');
 
@@ -470,27 +470,34 @@ function copyAndExtractODBCDriver() {
 
         extractODBCDriver.on('err', function() {
             console.log(err);
+            installPreCompiledBinary();
+            return;
         });
     }
     else
     {
-        var targz = require('targz');
-        var compress = targz.decompress({src: INSTALLER_FILE, dest: DOWNLOAD_DIR}, function(err){
-            if(err) {
-                console.log(err);
-                installPreCompiledBinary();
-                return;
-            }
-            else {
-                console.log(license_agreement);
-                console.log('Downloading and extraction of Informix ODBC ' +
-                    'CLI Driver completed successfully... \n');
-                CSDK_HOME = path.resolve(DOWNLOAD_DIR, 'onedb-odbc-driver');
-                process.env.CSDK_HOME = CSDK_HOME.replace(/\s/g,'\\ ');
-                buildDriverAndGenerateBinary(true);
-                removeDir('build.zip');
-                if(deleteInstallerFile) removeInstallerFile();
-            }
+        var tar = require('tar-fs');
+        var source = INSTALLER_FILE;
+        var target = DOWNLOAD_DIR;
+
+        // extracting to a directory
+        var untarODBCDriver = fs.createReadStream(source).pipe(tar.extract(target));
+
+        untarODBCDriver.on('close', function() {
+            console.log(license_agreement);
+            console.log('Downloading and extraction of Informix ODBC ' +
+                'CLI Driver completed successfully... \n');
+            CSDK_HOME = path.resolve(DOWNLOAD_DIR, 'onedb-odbc-driver');
+            process.env.CSDK_HOME = CSDK_HOME.replace(/\s/g,'\\ ');
+            buildDriverAndGenerateBinary(true);
+            removeDir('build.zip');
+            if(deleteInstallerFile) removeInstallerFile();
+        });
+
+        untarODBCDriver.on('err', function() {
+            console.log(err);
+            installPreCompiledBinary();
+            return;
         });
     }
 };
