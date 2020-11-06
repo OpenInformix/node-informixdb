@@ -292,6 +292,13 @@ function buildDriverAndGenerateBinary(isDownloaded) {
 }; //buildDriverAndGenerateBinary
 
 function installPreCompiledBinary() {
+    if (!process.env.CSDK_HOME || !process.env.INFORMIXDIR || !fs.existsSync(DOWNLOAD_DIR + "/onedb-odbc-driver"))
+    {
+        console.log('\n No prior CSDK/ODBC installation/directory found. Please check if you have ' +
+                'set the CSDK_HOME/INFORMIXDIR environment variable\'s value correctly.\n');
+        console.log('\nERROR: Installation Failed! \n');
+        process.exit(1);
+    }
     var fstream = require('fstream');
     console.log('\nACTION: Proceeding with Pre-compiled Binary Installation. \n');
     // build.zip file contains all the pre-compiled binary files
@@ -414,7 +421,7 @@ function downloadODBCDriver(installerfileURL) {
     request
         .get(installerfileURL)
             .on('error', function(err) {
-                console.log(err);
+                console.log('\nERROR: downloading onedb-odbc-driver process failed! \n' + err);
                 installPreCompiledBinary();
                 return;
             })
@@ -430,7 +437,7 @@ function downloadODBCDriver(installerfileURL) {
     deleteInstallerFile = true;
     outStream.once('close', copyAndExtractODBCDriver)
     .once('error', function (err) {
-        console.log(err);
+        console.log('\nERROR: extraction of onedb-odbc-driver failed! \n' + err);
         installPreCompiledBinary();
         return;
     });
