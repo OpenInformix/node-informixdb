@@ -49,7 +49,7 @@ var writeStream;
  *      You can add CSDK_INSTALLER_URL in .npmrc file too.
  */
 //URL for downloading Informix ODBC/CLI driver.
-var installerURL = 'https://hcl-onedb.github.io/odbc/';
+var installerURL = 'https://hcl-onedb.github.io/odbc';
 var license_agreement = '\n\n****************************************\nYou are downloading a package which includes the Node.js module for HCL/IBM Informix. The module is licensed under the Apache License 2.0. Check for additional dependencies, which may come with their own license agreement(s). Your use of the components of the package and dependencies constitutes your acceptance of their respective license agreements. If you do not accept the terms of any license agreement(s), then delete the relevant component(s) from your device.\n****************************************\n';
 installerURL = process.env.npm_config_CSDK_INSTALLER_URL ||
                process.env.CSDK_INSTALLER_URL || installerURL;
@@ -264,7 +264,6 @@ function buildDriverAndGenerateBinary(isDownloaded) {
             console.log(stdout);
 
             if (error !== null) {
-                console.log(error);
                 console.log('\nERROR: node-gyp build process failed! \n' + error);
                 installPreCompiledBinary();
                 return;
@@ -392,6 +391,20 @@ function removeInstallerFile()
     });
 };
 
+function deleteFolderRecursive(p){
+    if (fs.existsSync(p)) {
+        fs.readdirSync(p).forEach(function(file, index){
+            var curPath = path.join(p, file);
+            if (fs.lstatSync(curPath).isDirectory()) { // recurse
+                deleteFolderRecursive(curPath);
+            }else { // delete file
+                fs.unlinkSync(curPath);
+            }
+        });
+        fs.rmdirSync(p);
+    }
+}
+
 // Function to download onedb-odbc-driver file using request module.
 function downloadODBCDriver(installerfileURL) {
     // Variable to save downloading progress
@@ -404,6 +417,8 @@ function downloadODBCDriver(installerfileURL) {
         .get(installerfileURL)
             .on('error', function(err) {
                 console.log(err);
+                installPreCompiledBinary();
+                return;
             })
             .on('response', function(data) {
                 total_bytes = parseInt(data.headers['content-length']);
@@ -418,6 +433,8 @@ function downloadODBCDriver(installerfileURL) {
     outStream.once('close', copyAndExtractODBCDriver)
     .once('error', function (err) {
         console.log(err);
+        installPreCompiledBinary();
+        return;
     });
 };
 
@@ -430,7 +447,6 @@ function showDownloadingProgress(received, total) {
 function copyAndExtractODBCDriver() {
     if(platform == 'win32') {
         readStream = fs.createReadStream(INSTALLER_FILE);
-
         // Using the "unzipper" module to extract the zipped "onedb-odbc-driver",
         // and on successful close, printing the license_agreement
         var extractODBCDriver = readStream.pipe(unzipper.Extract({path: DOWNLOAD_DIR}));
@@ -455,19 +471,19 @@ function copyAndExtractODBCDriver() {
         var targz = require('targz');
         var compress = targz.decompress({src: INSTALLER_FILE, dest: DOWNLOAD_DIR}, function(err){
             if(err) {
-            console.log(err);
-            process.exit(1);
+                console.log(err);
+                installPreCompiledBinary();
+                return;
             }
             else {
-            console.log(license_agreement);
-            console.log('Downloading and extraction of Informix ODBC ' +
-                'CLI Driver completed successfully... \n');
-
-            CSDK_HOME = path.resolve(DOWNLOAD_DIR, 'onedb-odbc-driver');
-            process.env.CSDK_HOME = CSDK_HOME.replace(/\s/g,'\\ ');
-            buildDriverAndGenerateBinary(true);
-            removeDir('build.zip');
-            if(deleteInstallerFile) removeInstallerFile();
+                console.log(license_agreement);
+                console.log('Downloading and extraction of Informix ODBC ' +
+                    'CLI Driver completed successfully... \n');
+                CSDK_HOME = path.resolve(DOWNLOAD_DIR, 'onedb-odbc-driver');
+                process.env.CSDK_HOME = CSDK_HOME.replace(/\s/g,'\\ ');
+                buildDriverAndGenerateBinary(true);
+                removeDir('build.zip');
+                if(deleteInstallerFile) removeInstallerFile();
             }
         });
     }
