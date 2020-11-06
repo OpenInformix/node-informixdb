@@ -150,9 +150,7 @@ function InstallNodeInformixDB() {
 
             if ((platform == 'linux') || (platform == 'aix') ||
                 (platform == 'darwin' && arch == 'x64')) {
-                removeDir('build.zip');
                 buildDriverAndGenerateBinary(!IS_ENVIRONMENT_VAR);
-                //installPreCompiledBinary();
             }
         }
         else if (platform == 'win32' && arch == 'x64') {
@@ -459,6 +457,7 @@ function copyAndExtractODBCDriver() {
             CSDK_HOME = path.resolve(DOWNLOAD_DIR, 'onedb-odbc-driver');
             process.env.CSDK_HOME = CSDK_HOME.replace(/\s/g,'\\ ');
             buildDriverAndGenerateBinary(true);
+            removeDir('build.zip');
             if(deleteInstallerFile) removeInstallerFile();
         });
 
