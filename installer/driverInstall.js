@@ -50,7 +50,6 @@ var writeStream;
  */
 //URL for downloading Informix ODBC/CLI driver.
 var installerURL = 'https://hcl-onedb.github.io/odbc';
-// var installerURL = 'http://127.0.0.1:8000/';
 var license_agreement = '\n\n****************************************\nYou are downloading a package which includes the Node.js module for HCL/IBM Informix. The module is licensed under the Apache License 2.0. Check for additional dependencies, which may come with their own license agreement(s). Your use of the components of the package and dependencies constitutes your acceptance of their respective license agreements. If you do not accept the terms of any license agreement(s), then delete the relevant component(s) from your device.\n****************************************\n';
 installerURL = process.env.npm_config_CSDK_INSTALLER_URL ||
                process.env.CSDK_INSTALLER_URL || installerURL;
