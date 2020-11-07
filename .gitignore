@@ -6,3 +6,5 @@ defect
 .DS_Store
 .vscode
 .git
+config.testConnectionStrings.js
+test/config.testConnectionStrings.js
