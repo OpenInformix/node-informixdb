@@ -50,10 +50,13 @@ var writeStream;
  */
 //URL for downloading Informix ODBC/CLI driver.
 var installerURL = 'https://hcl-onedb.github.io/odbc';
+// var installerURL = 'http://127.0.0.1:8000/';
 var license_agreement = '\n\n****************************************\nYou are downloading a package which includes the Node.js module for HCL/IBM Informix. The module is licensed under the Apache License 2.0. Check for additional dependencies, which may come with their own license agreement(s). Your use of the components of the package and dependencies constitutes your acceptance of their respective license agreements. If you do not accept the terms of any license agreement(s), then delete the relevant component(s) from your device.\n****************************************\n';
 installerURL = process.env.npm_config_CSDK_INSTALLER_URL ||
                process.env.CSDK_INSTALLER_URL || installerURL;
 installerURL = installerURL + "/";
+
+var CSDK_HOME, CSDK_INCLUDE, CSDK_LIB;
 
 InstallNodeInformixDB();
 
@@ -62,7 +65,6 @@ function InstallNodeInformixDB() {
     checkDriverCompatibilityForOSAndNodejsVersion();
 
     var installerfileURL;
-    var CSDK_HOME, CSDK_INCLUDE, CSDK_LIB, CSDK_DIR;
 
     /*
      * Installer steps: Generic for all platforms :
@@ -118,23 +120,7 @@ function InstallNodeInformixDB() {
             IS_ENVIRONMENT_VAR = false;
         }
 
-        CSDK_INCLUDE = path.resolve(CSDK_HOME, 'incl/cli');
-        CSDK_LIB = path.resolve(CSDK_HOME, 'lib');
-
-        if (!fs.existsSync(CSDK_HOME)) {
-            console.log('\n' + CSDK_HOME + ' directory does not exist. Please check if you have ' +
-                'set the CSDK_HOME environment variable\'s value correctly.\n');
-        }
-
-        if (!fs.existsSync(CSDK_INCLUDE)) {
-            console.log('\n' + CSDK_INCLUDE + ' directory does not exist. Please check if you have ' +
-                'set the CSDK_HOME environment variable\'s value correctly.\n');
-        }
-
-        if (!fs.existsSync(CSDK_LIB)) {
-            console.log('\n' + CSDK_LIB + ' directory does not exist. Please check if you have ' +
-                'set the CSDK_HOME environment variable\'s value correctly.\n');
-        }
+        checkCSDKInternalDirs();
 
         if (IS_ENVIRONMENT_VAR) {
             console.log('CSDK_HOME environment variable have already been ' +
@@ -172,7 +158,7 @@ function InstallNodeInformixDB() {
         else if(platform == 'linux')
         {
             if(arch == 'x64') {
-                installerfileURL = installerURL + 'OneDB-Linux64-ODBC-Driver.tar';
+                installerfileURL = installerURL + 'OneDB-Linux64-ODBC-Driver.tar.gz';
             } else {
                 console.log('Node-Informixdb does not support other Linux flavours. Exiting the ' +
                         'install process.\n');
@@ -238,6 +224,27 @@ function checkDriverCompatibilityForOSAndNodejsVersion() {
     }
     else {
         console.log('\nERROR: Platform: ' + platform + ' with arch: ' + arch + ' is not supported. Please use a supported OS platform.\n');
+        process.exit(1);
+    }
+};
+
+function checkCSDKInternalDirs() {
+    CSDK_INCLUDE = path.resolve(CSDK_HOME, 'incl/cli');
+    CSDK_LIB = path.resolve(CSDK_HOME, 'lib');
+
+    if (!fs.existsSync(CSDK_HOME)) {
+        console.log('\nERROR:' + CSDK_HOME + ' directory does not exist. Please check if you have ' +
+            'set the CSDK_HOME environment variable\'s value correctly.\n');
+        process.exit(1);
+    }
+    if (!fs.existsSync(CSDK_INCLUDE)) {
+        console.log('\nERROR:' + CSDK_INCLUDE + ' directory does not exist. Please check if you have ' +
+            'set the CSDK_HOME environment variable\'s value correctly.\n');
+        process.exit(1);
+    }
+    if (!fs.existsSync(CSDK_LIB)) {
+        console.log('\nERROR:' + CSDK_LIB + ' directory does not exist. Please check if you have ' +
+            'set the CSDK_HOME environment variable\'s value correctly.\n');
         process.exit(1);
     }
 };
@@ -373,43 +380,6 @@ function installPreCompiledBinary() {
     return 1;
 };
 
-function removeDir(dir) {
-    var fullPath = path.resolve(CURRENT_DIR, dir);
-    if (fs.existsSync(fullPath)) {
-        if (platform == 'win32') {
-            execSync("rmdir /s /q " + '"' + fullPath + '"');
-        } else {
-            execSync("rm -rf " + '"' + fullPath + '"');
-        }
-    }
-};
-
-function removeInstallerFile()
-{
-    // Delete downloaded odbc_cli.tar.gz file.
-    fs.exists(INSTALLER_FILE, function(exists) 
-    {
-        if (exists)
-        {
-            fs.unlinkSync(INSTALLER_FILE);
-        }
-    });
-};
-
-function deleteFolderRecursive(p){
-    if (fs.existsSync(p)) {
-        fs.readdirSync(p).forEach(function(file, index){
-            var curPath = path.join(p, file);
-            if (fs.lstatSync(curPath).isDirectory()) { // recurse
-                deleteFolderRecursive(curPath);
-            }else { // delete file
-                fs.unlinkSync(curPath);
-            }
-        });
-        fs.rmdirSync(p);
-    }
-}
-
 // Function to download onedb-odbc-driver file using request module.
 function downloadODBCDriver(installerfileURL) {
     // Variable to save downloading progress
@@ -460,44 +430,76 @@ function copyAndExtractODBCDriver() {
             console.log(license_agreement);
             console.log('Downloading and extraction of Informix ODBC ' +
                 'CLI Driver completed successfully... \n');
-
             CSDK_HOME = path.resolve(DOWNLOAD_DIR, 'onedb-odbc-driver');
             process.env.CSDK_HOME = CSDK_HOME.replace(/\s/g,'\\ ');
+            checkCSDKInternalDirs();
             buildDriverAndGenerateBinary(true);
             removeDir('build.zip');
-            if(deleteInstallerFile) removeInstallerFile();
+            if(deleteInstallerFile) removeInstallerFile(INSTALLER_FILE);
         });
-
         extractODBCDriver.on('err', function() {
-            console.log(err);
+            console.log('\nERROR: extraction of onedb-odbc-driver failed! \n' + err);
             installPreCompiledBinary();
             return;
         });
     }
     else
     {
-        var tar = require('tar-fs');
-        var source = INSTALLER_FILE;
-        var target = DOWNLOAD_DIR;
-
-        // extracting to a directory
-        var untarODBCDriver = fs.createReadStream(source).pipe(tar.extract(target));
-
-        untarODBCDriver.on('close', function() {
-            console.log(license_agreement);
-            console.log('Downloading and extraction of Informix ODBC ' +
-                'CLI Driver completed successfully... \n');
-            CSDK_HOME = path.resolve(DOWNLOAD_DIR, 'onedb-odbc-driver');
-            process.env.CSDK_HOME = CSDK_HOME.replace(/\s/g,'\\ ');
-            buildDriverAndGenerateBinary(true);
-            removeDir('build.zip');
-            if(deleteInstallerFile) removeInstallerFile();
+        var targz = require('targz');
+        var decompress = targz.decompress({src: INSTALLER_FILE, dest: DOWNLOAD_DIR}, function(err){
+            if(err) {
+                console.log('\nERROR: extraction of onedb-odbc-driver failed! \n' + err);
+                installPreCompiledBinary();
+                return;
+            }
+            else {
+                console.log(license_agreement);
+                console.log('Downloading and extraction of Informix ODBC ' +
+                    'CLI Driver completed successfully... \n');
+                CSDK_HOME = path.resolve(DOWNLOAD_DIR, 'onedb-odbc-driver');
+                process.env.CSDK_HOME = CSDK_HOME.replace(/\s/g,'\\ ');
+                checkCSDKInternalDirs();
+                buildDriverAndGenerateBinary(true);
+                removeDir('build.zip');
+                if(deleteInstallerFile) removeInstallerFile(INSTALLER_FILE);
+            }
         });
+    }
+};
 
-        untarODBCDriver.on('err', function() {
-            console.log(err);
-            installPreCompiledBinary();
-            return;
+function removeDir(dir) {
+    var fullPath = path.resolve(CURRENT_DIR, dir);
+    if (fs.existsSync(fullPath)) {
+        if (platform == 'win32') {
+            execSync("rmdir /s /q " + '"' + fullPath + '"');
+        } else {
+            execSync("rm -rf " + '"' + fullPath + '"');
+        }
+    }
+};
+
+function removeInstallerFile(INSTALLER_FILE_PATH)
+{
+    // Delete downloaded odbc_cli.tar.gz file.
+    fs.exists(INSTALLER_FILE_PATH, function(exists) 
+    {
+        if (exists)
+        {
+            fs.unlinkSync(INSTALLER_FILE_PATH);
+        }
+    });
+};
+
+function deleteFolderRecursive(p){
+    if (fs.existsSync(p)) {
+        fs.readdirSync(p).forEach(function(file, index){
+            var curPath = path.join(p, file);
+            if (fs.lstatSync(curPath).isDirectory()) { // recurse
+                deleteFolderRecursive(curPath);
+            }else { // delete file
+                fs.unlinkSync(curPath);
+            }
         });
+        fs.rmdirSync(p);
     }
 };
