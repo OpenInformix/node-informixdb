@@ -34,6 +34,7 @@ var platform = os.platform();
 var CURRENT_DIR = process.cwd();
 var DOWNLOAD_DIR = path.resolve(CURRENT_DIR, 'installer');
 var INSTALLER_FILE;
+var BUILD_FILE;
 var deleteInstallerFile = false;
 var arch = os.arch();
 
@@ -308,7 +309,7 @@ function installPreCompiledBinary() {
     }
     var fstream = require('fstream');
     // build.zip file contains all the pre-compiled binary files
-    var BUILD_FILE = path.resolve(CURRENT_DIR, 'build.zip');
+    BUILD_FILE = path.resolve(CURRENT_DIR, 'build.zip');
 
     // This will always be the final installation name/path for all the binaries
     var ODBC_BINDINGS = 'build\/Release\/odbc_bindings.node';
@@ -433,8 +434,8 @@ function copyAndExtractODBCDriver() {
             process.env.CSDK_HOME = CSDK_HOME.replace(/\s/g,'\\ ');
             checkCSDKInternalDirs();
             buildDriverAndGenerateBinary(true);
-            removeDir('build.zip');
-            if(deleteInstallerFile) removeInstallerFile(INSTALLER_FILE);
+            removeFile(BUILD_FILE);
+            if(deleteInstallerFile) removeFile(INSTALLER_FILE);
         });
         extractODBCDriver.on('err', function() {
             console.log('\nERROR: extraction of onedb-odbc-driver failed! \n' + err);
@@ -459,8 +460,8 @@ function copyAndExtractODBCDriver() {
                 process.env.CSDK_HOME = CSDK_HOME.replace(/\s/g,'\\ ');
                 checkCSDKInternalDirs();
                 buildDriverAndGenerateBinary(true);
-                removeDir('build.zip');
-                if(deleteInstallerFile) removeInstallerFile(INSTALLER_FILE);
+                removeFile(BUILD_FILE);
+                if(deleteInstallerFile) removeFile(INSTALLER_FILE);
             }
         });
     }
@@ -477,14 +478,14 @@ function removeDir(dir) {
     }
 };
 
-function removeInstallerFile(INSTALLER_FILE_PATH)
+function removeFile(FILE_PATH)
 {
     // Delete downloaded odbc_cli.tar.gz file.
-    fs.exists(INSTALLER_FILE_PATH, function(exists) 
+    fs.exists(FILE_PATH, function(exists)
     {
         if (exists)
         {
-            fs.unlinkSync(INSTALLER_FILE_PATH);
+            fs.unlinkSync(FILE_PATH);
         }
     });
 };
