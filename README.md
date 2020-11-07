@@ -1,7 +1,7 @@
 # Informix native node.js driver - node-informixdb:
 Informix native node.js driver is a high performance driver with asynchronous/synchronous interface suitable for highly scalable enterprise applications and lightweight enough for Internet of things (IoT) solutions working with Informix database.
 
-**Supported Platforms** - Windows64, MacOS64, Linuxx64, Linuxia32, AIX.
+**Supported Platforms** - Windows64, Linuxx64, Linuxia32, AIX.
 
 ## Supported Node.js Versions
 
@@ -12,11 +12,11 @@ Informix native node.js driver is a high performance driver with asynchronous/sy
 | < V8.X            | NO (DISCONTINUED) | NO (DISCONTINUED) | NO (DISCONTINUED) | NO (DISCONTINUED)  |
 |   V8.X            | NO (DISCONTINUED) | NO (DISCONTINUED) | NO (DISCONTINUED) | NO (DISCONTINUED)  |
 |   V9.X            | NO (DISCONTINUED) | NO (DISCONTINUED) | NO (DISCONTINUED) | NO (DISCONTINUED)  |
-|   V10.X           | YES               | YES               | Yes               | YES                |
-|   V11.X           | YES               | YES               | Yes               | YES                |
-|   V12.X           | YES               | YES               | Yes               | YES                |
-|   V13.X           | YES               | YES               | Yes               | YES                |
-|   V14.X           | YES               | YES               | Yes               | YES                |
+|   V10.X           | YES               | YES               | NO                | YES                |
+|   V11.X           | YES               | YES               | NO                | YES                |
+|   V12.X           | YES               | YES               | NO                | YES                |
+|   V13.X           | YES               | YES               | NO                | YES                |
+|   V14.X           | YES               | YES               | NO                | YES                |
 | > V14.X           | FUTURE            | FUTURE            | FUTURE            | FUTURE             |
 
 **The latest node.js version using which informixdb is tested: 14.9.0**
@@ -25,16 +25,15 @@ Informix native node.js driver is a high performance driver with asynchronous/sy
 
 - Python 2.7 is required by node-gyp.
 
-- Informix CSDK (Client Software Development Kit) for connectivity.
-
-- Set **CSDK_HOME** or **INFORMIXDIR** environment variables to a pre-installed Informix CSDK installation directory.
+- Informix ODBC (It will get download automatically while installation, if CSDK_HOME/INFORMIXDIR is not set.)
 
 - If Windows Platform: for compilation of informixdb Visual Studio is required, if not available then module will install with "pre-compiled" binary version.
 
 - If Linux Platform: for compilation of informixdb C++11 compiler is required, if not available then module will install with "pre-compiled" binary version.
   (Note the default compiler on RHEL 6 does not have the required support. Install a newer compiler or upgrade the older one.)
 
-### Important Environment Variables and Download Essentials 
+### Important Environment Variables and Download Essentials
+** To use exiting CSDK installation directory set below env variables, it will prevent automatic download of Informix ODBC driver **
 
 `CSDK_HOME:`
 
@@ -51,6 +50,28 @@ Informix native node.js driver is a high performance driver with asynchronous/sy
 
 - HOW:
 	- Set **INFORMIXDIR** environment variable to a pre-installed **Informix CSDK installation directory**.
+
+`CSDK_INSTALLER_URL :`
+
+- USE:
+	- Set this environment variable to by-pass the HCL Hosted URL for downloading odbc driver.
+
+- HOW:
+	- Set **CSDK_INSTALLER_URL** environment variable with alternate odbc/driver downloading URL link or with locally downloaded "tar/zipped driver's parent directory path.
+
+- TIP:
+	- If you don't have alternate hosting URL then, you can download the tar/zipped file of driver from the [HCL Hosted URL](#downloadODBC) and can set the **CSDK_INSTALLER_URL** environment variable to the downloaded "tar/zipped driver's" parent directory path. No need to untar/unzip the driver and do not change the name of downloaded file.
+
+### <a name="downloadODBC"></a> Download onedb-odbc-driver ([based on your platform & architecture](#systemDetails)) from the below HCL Hosted URL:
+> [DOWNLOAD ODBC DRIVER](https://hcl-onedb.github.io/odbc/)
+
+#### <a name="systemDetails"></a> Informix ODBC Drivers for Specific Platform and Architecture
+
+|Platform      |Architecture    |ODBC Driver                       |Supported     |
+| :---:        |  :---:         |  :---:                           |  :---:       |
+|Linux         |  x64           |OneDB-Linux64-ODBC-Driver.tar.gz  |  Yes         |
+|Windows       |  x64           |OneDB-Win64-ODBC-Driver.zip       |  Yes         |
+
 
 ## Install
 
