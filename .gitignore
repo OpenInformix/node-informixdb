@@ -7,4 +7,3 @@ defect
 .vscode
 .git
 installer/onedb-odbc-driver
-test/config.testConnectionStrings.json
