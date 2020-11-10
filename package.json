@@ -29,7 +29,7 @@
   },
   "scripts": {
     "install": "node installer/driverInstall.js",
-    "test": "echo \"No test specified\""
+    "test": "cd test && node run-tests.js"
   },
   "dependencies": {
     "bindings": "^1.3.0",

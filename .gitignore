@@ -6,5 +6,5 @@ defect
 .DS_Store
 .vscode
 .git
-*config.testConnectionStrings.json
-*/test/config.testConnectionStrings.json
+installer/onedb-odbc-driver
+test/config.testConnectionStrings.json
