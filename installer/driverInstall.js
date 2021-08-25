@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2017, 2020 OpenInformix.
+  Copyright (c) 2017, 2021 OpenInformix.
   Copyright (c) 2014, IBM Corporation.
   Copyright (c) 2013, Dan VerWeire <dverweire@gmail.com>
   Copyright (c) 2010, Lee Smith <notwink@gmail.com>
@@ -315,35 +315,33 @@ function installPreCompiledBinary() {
     var ODBC_BINDINGS = 'build\/Release\/odbc_bindings.node';
 
     // Supported Node.js versions bonaries
-    var ODBC_BINDINGS_V8, ODBC_BINDINGS_V9, ODBC_BINDINGS_V10, ODBC_BINDINGS_V11, ODBC_BINDINGS_V12, ODBC_BINDINGS_V13, ODBC_BINDINGS_V14
+    var ODBC_BINDINGS_V10, ODBC_BINDINGS_V11, ODBC_BINDINGS_V12, ODBC_BINDINGS_V13, ODBC_BINDINGS_V14
 
     if (platform == 'win32' && arch == 'x64') {
         // Windows node binary names should update here.
-        ODBC_BINDINGS_V10 = 'build\/Release\/odbc_bindings_win64.node.10.16.0';
+        ODBC_BINDINGS_V10 = 'build\/Release\/odbc_bindings_win64.node.10.24.1';
         ODBC_BINDINGS_V11 = 'build\/Release\/odbc_bindings_win64.node.11.15.0';
-        ODBC_BINDINGS_V12 = 'build\/Release\/odbc_bindings_win64.node.12.15.0';
+        ODBC_BINDINGS_V12 = 'build\/Release\/odbc_bindings_win64.node.12.22.5';
         ODBC_BINDINGS_V13 = 'build\/Release\/odbc_bindings_win64.node.13.14.0';
-        ODBC_BINDINGS_V14 = 'build\/Release\/odbc_bindings_win64.node.14.9.0';
+        ODBC_BINDINGS_V14 = 'build\/Release\/odbc_bindings_win64.node.14.17.5';
     }
     else if (platform = 'linux') {
         // Linux node binary names should update here.
-        ODBC_BINDINGS_V10 = 'build\/Release\/odbc_bindings_linux.node.10.16.0';
+        ODBC_BINDINGS_V10 = 'build\/Release\/odbc_bindings_linux.node.10.24.1';
         ODBC_BINDINGS_V11 = 'build\/Release\/odbc_bindings_linux.node.11.15.0';
-        ODBC_BINDINGS_V12 = 'build\/Release\/odbc_bindings_linux.node.12.15.0';
+        ODBC_BINDINGS_V12 = 'build\/Release\/odbc_bindings_linux.node.12.22.5';
         ODBC_BINDINGS_V13 = 'build\/Release\/odbc_bindings_linux.node.13.14.0';
-        ODBC_BINDINGS_V14 = 'build\/Release\/odbc_bindings_linux.node.14.9.0';
+        ODBC_BINDINGS_V14 = 'build\/Release\/odbc_bindings_linux.node.14.17.5';
     }
 
     /*
     * odbcBindingsNode will consist of the node binary-
     * file name according to the node version in the system.
     */
-    var odbcBindingsNode = (Number(process.version.match(/^v(\d+\.\d+)/)[1]) < 9.0) && ODBC_BINDINGS_V8 ||
-        (Number(process.version.match(/^v(\d+\.\d+)/)[1]) < 10.0) && ODBC_BINDINGS_V9 ||
-        (Number(process.version.match(/^v(\d+\.\d+)/)[1]) < 11.0) && ODBC_BINDINGS_V10 ||
-        (Number(process.version.match(/^v(\d+\.\d+)/)[1]) < 12.0) && ODBC_BINDINGS_V11 ||
-        (Number(process.version.match(/^v(\d+\.\d+)/)[1]) < 13.0) && ODBC_BINDINGS_V12 ||
-        (Number(process.version.match(/^v(\d+\.\d+)/)[1]) < 14.0) && ODBC_BINDINGS_V13 || ODBC_BINDINGS_V14;
+    var odbcBindingsNode = (Number(process.version.match(/^v(\d+\.\d+)/)[1]) < 11.0) && ODBC_BINDINGS_V10 ||
+                           (Number(process.version.match(/^v(\d+\.\d+)/)[1]) < 12.0) && ODBC_BINDINGS_V11 ||
+                           (Number(process.version.match(/^v(\d+\.\d+)/)[1]) < 13.0) && ODBC_BINDINGS_V12 ||
+                           (Number(process.version.match(/^v(\d+\.\d+)/)[1]) < 14.0) && ODBC_BINDINGS_V13 || ODBC_BINDINGS_V14;
 
     // Removing the "build" directory created by Auto Installation Process.
     // "unzipper" will create a fresh "build" directory for extraction of "build.zip".

@@ -19,7 +19,7 @@ Informix native node.js driver is a high performance driver with asynchronous/sy
 |   V14.X           | YES               | YES               | NO                | YES                |
 | > V14.X           | FUTURE            | FUTURE            | FUTURE            | FUTURE             |
 
-**The latest node.js version using which informixdb is tested: 14.9.0**
+**The latest node.js version using which informixdb is tested: 14.17.5**
 
 ## Prerequisite
 
