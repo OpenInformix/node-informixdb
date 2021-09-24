@@ -300,7 +300,7 @@ function buildDriverAndGenerateBinary(isDownloaded) {
 
 function installPreCompiledBinary() {
     console.log('\nACTION: Proceeding with Pre-compiled Binary Installation. \n');
-    if (!process.env.CSDK_HOME || !process.env.INFORMIXDIR || !fs.existsSync(DOWNLOAD_DIR + "/onedb-odbc-driver"))
+    if (!process.env.CSDK_HOME && !process.env.INFORMIXDIR && !fs.existsSync(DOWNLOAD_DIR + "/onedb-odbc-driver"))
     {
         console.log('\nNo prior CSDK/ODBC installation/directory found. Please check if you have ' +
                 'set the CSDK_HOME/INFORMIXDIR environment variable\'s value correctly.\n');
