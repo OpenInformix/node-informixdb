@@ -57,7 +57,7 @@
   "author": "Rohit Pandey",
   "license": "MIT",
   "devDependencies": {
-    "async": "^2.6.1",
+    "async": "^3.2.2",
     "bluebird": "^3.5.2",
     "moment": "^2.22.2"
   }
