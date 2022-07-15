@@ -315,7 +315,7 @@ function installPreCompiledBinary() {
     var ODBC_BINDINGS = 'build\/Release\/odbc_bindings.node';
 
     // Supported Node.js versions bonaries
-    var ODBC_BINDINGS_V10, ODBC_BINDINGS_V11, ODBC_BINDINGS_V12, ODBC_BINDINGS_V13, ODBC_BINDINGS_V14
+    var ODBC_BINDINGS_V10, ODBC_BINDINGS_V11, ODBC_BINDINGS_V12, ODBC_BINDINGS_V13, ODBC_BINDINGS_V14, ODBC_BINDINGS_V16
 
     if (platform == 'win32' && arch == 'x64') {
         // Windows node binary names should update here.
@@ -332,6 +332,7 @@ function installPreCompiledBinary() {
         ODBC_BINDINGS_V12 = 'build\/Release\/odbc_bindings_linux.node.12.22.5';
         ODBC_BINDINGS_V13 = 'build\/Release\/odbc_bindings_linux.node.13.14.0';
         ODBC_BINDINGS_V14 = 'build\/Release\/odbc_bindings_linux.node.14.17.5';
+        ODBC_BINDINGS_V16 = 'build\/Release\/odbc_bindings_linux.node.16.13.0';
     }
 
     /*
