@@ -27,7 +27,7 @@ var path = require('path');
 var exec = require('child_process').exec;
 var execSync = require('child_process').execSync;
 var url = require('url');
-var request = require('request');
+var axios = require('axios');
 var unzipper = require('unzipper');
 
 var platform = os.platform();
@@ -381,33 +381,34 @@ function installPreCompiledBinary() {
 // Function to download onedb-odbc-driver file using request module.
 function downloadODBCDriver(installerfileURL) {
     // Variable to save downloading progress
-    var received_bytes = 0;
-    var total_bytes = 0;
+    let received_bytes = 0;
+    let total_bytes = 0;
 
-    var outStream = fs.createWriteStream(INSTALLER_FILE);
+    const outStream = fs.createWriteStream(INSTALLER_FILE);
 
-    request
-        .get(installerfileURL)
-            .on('error', function(err) {
-                console.log('\nERROR: downloading onedb-odbc-driver process failed! \n' + err);
-                installPreCompiledBinary();
-                return;
-            })
-            .on('response', function(data) {
-                total_bytes = parseInt(data.headers['content-length']);
-            })
-            .on('data', function(chunk) {
-                received_bytes += chunk.length;
-                showDownloadingProgress(received_bytes, total_bytes);
-            })
-            .pipe(outStream);
+    axios({
+        method: 'get',
+        url: installerfileURL,
+        responseType: 'stream'
+    })
+    .then(response => {
+        total_bytes = parseInt(response.headers['content-length']);
+        response.data.on('data', function(chunk) {
+            received_bytes += chunk.length;
+            showDownloadingProgress(received_bytes, total_bytes);
+        })
+        .pipe(outStream);
+    })
+    .catch(error => {
+        console.log('\nERROR: downloading onedb-odbc-driver process failed! \n' + error);
+        installPreCompiledBinary();
+    });
 
     deleteInstallerFile = true;
     outStream.once('close', copyAndExtractODBCDriver)
     .once('error', function (err) {
         console.log('\nERROR: extraction of onedb-odbc-driver failed! \n' + err);
         installPreCompiledBinary();
-        return;
     });
 };
 
